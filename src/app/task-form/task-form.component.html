@@ -1,0 +1,156 @@
+<!-- Header -->
+<header class="app-header">
+  <div class="header-left">
+    <img src="assets/image/logo.png" alt="Logo" class="logo" />
+  </div>
+</header>
+
+<!-- Employee Details Section -->
+<div class="employee-card">
+  <div class="employee-row">
+    <!-- Employee ID -->
+    <div class="employee-field">
+      <label for="employeeId">🏷️Employee ID</label>
+      <input type="text" id="employeeId" [(ngModel)]="employeeId" placeholder="Enter Employee ID" readonly />
+    </div>
+
+    <!-- Employee Name -->
+    <div class="employee-field">
+      <label for="employeeName">👤Employee Name</label>
+      <input type="text" id="employeeName" [(ngModel)]="employeeName" placeholder="Enter Employee Name" readonly />
+    </div>
+  </div>
+</div>
+
+
+<!-- Task Form -->
+<div class="task-form">
+  <form [formGroup]="taskForm" (ngSubmit)="saveTask()">
+
+  <div formArrayName="tasks">
+    <div *ngFor="let task of tasks.controls; let i = index" [formGroupName]="i" class="task-block">
+
+      <!-- Always Visible: Date (only for the first task) -->
+<div class="form-row task-header" *ngIf="i === 0">
+  <div class="form-group">
+    <label>📅 Date *</label>
+    <input type="date" formControlName="date" />
+  </div>
+</div>   
+        <!-- Project Name -->
+<div class="form-row project-row">
+  <div class="form-group">
+    <label>📊 Project Name *</label>
+    <select formControlName="project">
+      <option value="">- Select -</option>
+      <option *ngFor="let project of projects" [value]="project">{{ project }}</option>
+    </select>
+  </div>
+</div>
+
+<!-- Team Lead Name -->
+<div class="form-row teamLead-row">
+  <div class="form-group">
+    <label>👤 Team Lead Name *</label>
+    <select formControlName="teamLead">
+      <option value="">- Select -</option>
+      <option *ngFor="let teamLead of teamLeads" [value]="teamLead">{{ teamLead }}</option>
+    </select>
+  </div>
+</div>
+
+<!-- Arrow placed below project name -->
+<div class="arrow-container" (click)="toggleTask(i)">
+  <span class="toggle-arrow">{{ expandedTaskIndex === i ? '▼ ' : '▶ ' }}</span>
+</div>
+
+        <!-- Collapsible Section -->
+      <div *ngIf="expandedTaskIndex === i" class="collapsible-form">
+        <!-- Tasks -->
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>📝 Tasks *</label>
+            <textarea formControlName="taskTitle" class="tasks-box"></textarea>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>📖 Description *</label>
+            <textarea formControlName="description" class="description-box"></textarea>
+          </div>
+        </div>
+
+        <!-- File + PR Link in one line -->
+<div class="form-row pr-task-inline">
+  
+  <!-- File -->
+  <div class="form-group half-width">
+    <label>📂 Task Reference</label>
+    <input type="file" (change)="onFileChange($event)" />
+  </div>
+
+  <!-- PR Link -->
+  <div class="form-group half-width">
+    <label>🔗 PR Link</label>
+    <input 
+      type="url" 
+      formControlName="prLink" 
+      placeholder="https://github.com/org/repo/pull/123" />
+
+    <!-- Status -->
+    <small *ngIf="task.get('prLink')?.value; else noPr">
+      ✅ <a [href]="task.get('prLink')?.value" target="_blank">View PR</a>
+    </small>
+    <ng-template #noPr>
+      <small>⚠️ No PR added yet</small>
+    </ng-template>
+  </div>
+
+</div>
+
+
+        <!-- Status + Hours -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>🚩 Status *</label>
+            <select formControlName="status">
+              <option value="">- Select -</option>
+              <option value="Complete">Complete ✅</option>
+              <option value="InComplete">Incomplete ❌</option>
+              <option value="Partial">Partial ⏳</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>⏰ Hours *</label>
+            <input type="time" formControlName="hours" />
+          </div>
+        </div>
+
+        <!-- Extra Hours -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>➕ Extra Hours</label>
+            <input type="time" formControlName="extraHours" />
+          </div>
+        </div>
+
+        <!-- Remove Button -->
+        <div class="form-row">
+          <button type="button" class="btn btn-danger" (click)="removeTask(i)" *ngIf="tasks.length > 1">
+            ❌ Remove
+          </button>
+        </div>
+      </div> <!-- ✅ closes collapsible-form -->
+    </div>   <!-- ✅ closes task-block -->
+  </div>     <!-- ✅ closes formArrayName="tasks" -->
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <button type="button" class="btn btn-secondary" (click)="addTask()">➕ Add More Task</button>
+    <button type="submit" class="btn btn-primary">💾 Save Task</button>
+  </div>
+
+</form>
