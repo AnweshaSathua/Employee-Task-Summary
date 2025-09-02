@@ -50,7 +50,7 @@ export class TaskFormComponent implements OnInit {   // 👈 implement OnInit
  
   ]
  
-  private apiUrl = 'http://localhost:8084/api/v1/tasks/submit/TEST011';
+  private apiUrl = 'http://localhost:8080/api/v1/tasks/submit/TEST011';
  
   constructor(private fb: FormBuilder, private http: HttpClient) {
     this.taskForm = this.fb.group({
@@ -128,7 +128,7 @@ export class TaskFormComponent implements OnInit {   // 👈 implement OnInit
  
   // ✅ New method to fetch employee details
   loadEmployeeDetails(empId: string): void {
-    this.http.get<any>(`http://localhost:8084/api/v1/employees/${empId}`).subscribe({
+    this.http.get<any>(`http://localhost:8080/api/v1/employees/${empId}`).subscribe({
       next: (data) => {
         console.log("✅ Employee data:", data);
         this.employeeId = data.employeeId;
@@ -142,3 +142,4 @@ export class TaskFormComponent implements OnInit {   // 👈 implement OnInit
   }
 }
  
+
