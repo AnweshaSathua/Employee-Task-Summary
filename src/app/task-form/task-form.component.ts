@@ -1,23 +1,24 @@
-import { Component, OnInit } from '@angular/core';   // 👈 import OnInit
+import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';  // 👈 import HttpClient
  
 @Component({
   selector: 'app-task-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule], // 👈 add HttpClientModule
   templateUrl: './task-form.component.html',
   styleUrls: ['./task-form.component.css']
 })
-export class TaskFormComponent implements OnInit {   // 👈 implement OnInit
+export class TaskFormComponent {
   taskForm: FormGroup;
   employeeName: any;
   employeeId: any;
  
+  // 👇 Manage which task is expanded
   expandedTaskIndex: number | null = null;
  
-   // Example project list
+  // Example project list
   projects: string[] = [
     "Account, Card, Deposit, customer Onboarding",
    "Agent Banking",
@@ -48,19 +49,15 @@ export class TaskFormComponent implements OnInit {   // 👈 implement OnInit
     "Srinivasan T",
     "Senthil Selvaraj"
  
-  ]
+  ];
  
-  private apiUrl = 'http://localhost:8080/api/v1/tasks/submit/TEST011';
+  private apiUrl = 'http://localhost:8080/api/v1/tasks/submit/TEST011';  // 👈 your backend endpoint
  
+  // ✅ Inject HttpClient properly
   constructor(private fb: FormBuilder, private http: HttpClient) {
     this.taskForm = this.fb.group({
       tasks: this.fb.array([this.createTask()])
     });
-  }
- 
-  // ✅ Lifecycle hook runs when component loads
-  ngOnInit(): void {
-    this.loadEmployeeDetails("TEST011");   // 👈 replace with logged-in empId dynamically later
   }
  
   get tasks(): FormArray {
@@ -69,19 +66,21 @@ export class TaskFormComponent implements OnInit {   // 👈 implement OnInit
  
   private createTask(): FormGroup {
     return this.fb.group({
+      
       date: ['', Validators.required],
       project: ['', Validators.required],
       teamLead: ['', Validators.required],
       taskTitle: ['', Validators.required],
       description: ['', Validators.required],
       reference: [null],
-      prLink: [''],
+      prLink: [''],   // ✅ PR field
       status: ['', Validators.required],
       hours: ['', Validators.required],
       extraHours: ['']
     });
   }
  
+  // 👇 Toggle expand/collapse
   toggleTask(index: number): void {
     this.expandedTaskIndex = this.expandedTaskIndex === index ? null : index;
   }
@@ -105,6 +104,7 @@ export class TaskFormComponent implements OnInit {   // 👈 implement OnInit
         tasks: this.taskForm.value.tasks
       };
  
+      // 👇 Proper HttpClient call
       this.http.post(this.apiUrl, finalData).subscribe({
         next: (response) => {
           console.log('✅ Data saved on backend:', response);
@@ -125,21 +125,4 @@ export class TaskFormComponent implements OnInit {   // 👈 implement OnInit
     const file = event?.target?.files?.[0] ?? null;
     console.log('File selected:', file);
   }
- 
-  // ✅ New method to fetch employee details
-  loadEmployeeDetails(empId: string): void {
-    this.http.get<any>(`http://localhost:8080/api/v1/employees/${empId}`).subscribe({
-      next: (data) => {
-        console.log("✅ Employee data:", data);
-        this.employeeId = data.employeeId;
-        this.employeeName = data.employeeName;
-      },
-      error: (err) => {
-        console.error("❌ Failed to fetch employee details", err);
-        alert("Employee not found!");
-      }
-    });
-  }
 }
- 
-
