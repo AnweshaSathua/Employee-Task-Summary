@@ -38,7 +38,7 @@
   </div>
 </div>   
         <!-- Project Name -->
-<div class="form-row project-row">
+<div class="form-row">
   <div class="form-group">
     <label>📊 Project Name *</label>
     <select formControlName="project">
@@ -46,10 +46,9 @@
       <option *ngFor="let project of projects" [value]="project">{{ project }}</option>
     </select>
   </div>
-</div>
+
 
 <!-- Team Lead Name -->
-<div class="form-row teamLead-row">
   <div class="form-group">
     <label>👤 Team Lead Name *</label>
     <select formControlName="teamLead">
