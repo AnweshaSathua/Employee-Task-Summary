@@ -47,8 +47,8 @@ export class TaskFormComponent implements OnInit {
     "Senthil Selvaraj"
   ];
 
-  private apiUrl = 'http://localhost:8080/api/v1/tasks/submit';   // no hard-coded ID
-  private employeeApi = 'http://localhost:8080/api/v1/employees'; // endpoint to fetch employee details
+  private apiUrl = 'http://localhost:8080/api/v1/tasks/submit';
+  private employeeApi = 'http://localhost:8080/api/v1/employees';
 
   constructor(private fb: FormBuilder, private http: HttpClient) {
     this.taskForm = this.fb.group({
@@ -57,10 +57,13 @@ export class TaskFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // ✅ Example: Employee ID comes from login/session/localStorage
-    this.employeeId = localStorage.getItem('employeeId');  // or from AuthService
+    // Get Employee ID from localStorage
+    this.employeeId = localStorage.getItem('employeeId');
+
     if (this.employeeId) {
       this.loadEmployeeDetails(this.employeeId);
+    } else {
+      console.warn("⚠️ No employeeId found in localStorage.");
     }
   }
 
@@ -125,8 +128,15 @@ export class TaskFormComponent implements OnInit {
   private loadEmployeeDetails(employeeId: string): void {
     this.http.get<any>(`${this.employeeApi}/${employeeId}`).subscribe({
       next: (employee) => {
-        this.employeeName = employee.name;  // ✅ assuming backend returns { id, name, ... }
-        console.log('✅ Employee details loaded:', employee);
+        console.log("🔎 Backend response:", employee);
+
+        // Handle both naming styles from backend
+        this.employeeName = employee.employeeName ?? employee.name ?? null;
+        this.employeeId = employee.employeeId ?? employee.id ?? this.employeeId;
+
+        if (!this.employeeName) {
+          console.warn("⚠️ Employee name not found in API response.");
+        }
       },
       error: (err) => {
         console.error('❌ Failed to load employee details:', err);
@@ -136,6 +146,6 @@ export class TaskFormComponent implements OnInit {
 
   onFileChange(event: any): void {
     const file = event?.target?.files?.[0] ?? null;
-    console.log('File selected:', file);
+    console.log('📂 File selected:', file);
   }
 }
