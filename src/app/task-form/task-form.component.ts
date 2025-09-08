@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { createEmitAndSemanticDiagnosticsBuilderProgram } from 'typescript';
 
 @Component({
   selector: 'app-task-form',
@@ -62,6 +63,8 @@ export class TaskFormComponent implements OnInit {
     if (storedId) {
       this.employeeId = storedId;
       this.loadEmployeeDetails(storedId);
+  }else {
+    console.warn('⚠️ No employeeId found in localStorage!');
   }
 
   // 2️⃣ Initialize form
