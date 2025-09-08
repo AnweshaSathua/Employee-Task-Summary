@@ -125,7 +125,7 @@ export class TaskFormComponent implements OnInit {
 
   /** Fetch employee details from backend */
   loadEmployeeDetails(employeeId: string): void {
-    this.http.get<any>(`http://localhost:8080/api/v1/employees/${employeeId}`)
+    this.http.get<any>(`http:/192.168.0.22:8020/employee/api/employees/${employeeId}`)
       .subscribe({
         next: (res) => {
           this.employeeName = res.employeeName; // backend should return employeeName
@@ -151,7 +151,7 @@ export class TaskFormComponent implements OnInit {
 
     console.log('Final Payload:', payload);
 
-    this.http.post('http://localhost:8080/api/v1/tasks/submit', payload)
+    this.http.post('http://192.168.0.22:8020/employee/api/v1/tasks/submit', payload)
       .subscribe({
         next: () => {
           alert('Task saved successfully!');
