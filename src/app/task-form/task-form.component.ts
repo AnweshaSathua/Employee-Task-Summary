@@ -12,10 +12,10 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 })
 export class TaskFormComponent implements OnInit {
   taskForm: FormGroup;
-  employeeName: string | null = null;
-  employeeId: string | null = null;
+  employeeName: string = '';
+  employeeId: string = '';
 
-  expandedTaskIndex: number | null = null;
+  expandedTaskIndex: number | null=0;
 
   // Example project list
   projects: string[] = [
@@ -48,9 +48,7 @@ export class TaskFormComponent implements OnInit {
     "Senthil Selvaraj"
   ];
 
-  // ✅ API Endpoints
-  private taskApiUrl = 'http://localhost:8080/api/v1/tasks/submit';
-  private employeeApiUrl = 'http://localhost:8080/api/v1/employees';
+  
 
   constructor(private fb: FormBuilder, private http: HttpClient) {
     this.taskForm = this.fb.group({
@@ -59,20 +57,22 @@ export class TaskFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // ✅ Employee ID comes from login/session/localStorage
-    this.employeeId = localStorage.getItem('employeeId'); // 👈 stored during login
-    if (this.employeeId) {
-      this.loadEmployeeDetails(this.employeeId);
-    }
+    // 1️⃣ Load employeeId from login details (localStorage/sessionStorage)
+    const storedId = localStorage.getItem('employeeId');
+    if (storedId) {
+      this.employeeId = storedId;
+      this.loadEmployeeDetails(storedId);
   }
 
-  // 🔹 FormArray getter
-  get tasks(): FormArray {
-    return this.taskForm.get('tasks') as FormArray;
+  // 2️⃣ Initialize form
+    this.taskForm = this.fb.group({
+      tasks: this.fb.array([this.createTask()])
+    });
   }
+
 
   // 🔹 Create a new Task form group
-  private createTask(): FormGroup {
+  createTask(): FormGroup {
     return this.fb.group({
       date: ['', Validators.required],
       project: ['', Validators.required],
@@ -87,66 +87,75 @@ export class TaskFormComponent implements OnInit {
     });
   }
 
-  // 🔹 Expand/collapse toggle
-  toggleTask(index: number): void {
-    this.expandedTaskIndex = this.expandedTaskIndex === index ? null : index;
+   /** Getter for tasks form array */
+  get tasks(): FormArray {
+    return this.taskForm.get('tasks') as FormArray;
   }
 
-  // 🔹 Add task row
+  /** Add a new task */
   addTask(): void {
     this.tasks.push(this.createTask());
+    this.expandedTaskIndex = this.tasks.length - 1; // expand new task
   }
 
-  // 🔹 Remove task row
-  removeTask(i: number): void {
-    this.tasks.removeAt(i);
-    if (this.expandedTaskIndex === i) {
+  /** Remove a task */
+  removeTask(index: number): void {
+    this.tasks.removeAt(index);
+    if (this.expandedTaskIndex === index) {
       this.expandedTaskIndex = null;
     }
   }
 
-  // 🔹 Save task to backend
-  saveTask(): void {
-    if (this.taskForm.valid && this.employeeId && this.employeeName) {
-      const finalData = {
-        employeeId: this.employeeId,
-        employeeName: this.employeeName,
-        tasks: this.taskForm.value.tasks
-      };
+  /** Expand/Collapse task */
+  toggleTask(index: number): void {
+    this.expandedTaskIndex = this.expandedTaskIndex === index ? null : index;
+  }
 
-      this.http.post(`${this.taskApiUrl}/${this.employeeId}`, finalData).subscribe({
-        next: (response) => {
-          console.log('✅ Data saved on backend:', response);
-          alert('✅ Task saved successfully!');
-        },
-        error: (error) => {
-          console.error('❌ Error while saving:', error);
-          alert('❌ Failed to save task. Please try again.');
-        }
-      });
-    } else {
-      this.taskForm.markAllAsTouched();
-      alert('⚠️ Please check your Employee ID and all required fields.');
+  /** File input change handler */
+  onFileChange(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      console.log('Selected file:', file);
+      // TODO: implement file upload logic
     }
   }
 
-  // 🔹 Fetch employee details by ID
-  private loadEmployeeDetails(employeeId: string): void {
-    this.http.get<any>(`${this.employeeApiUrl}/${employeeId}`).subscribe({
-      next: (employee) => {
-        // 👇 map this to your backend response keys
-        this.employeeName = employee.employeeName || employee.name;
-        console.log('✅ Employee details loaded:', employee);
-      },
-      error: (err) => {
-        console.error('❌ Failed to load employee details:', err);
-      }
-    });
+  /** Fetch employee details from backend */
+  loadEmployeeDetails(employeeId: string): void {
+    this.http.get<any>(`http://localhost:8080/api/v1/employees/${employeeId}`)
+      .subscribe({
+        next: (res) => {
+          this.employeeName = res.employeeName; // backend should return employeeName
+        },
+        error: (err) => {
+          console.error('Error fetching employee details:', err);
+        }
+      });
   }
 
-  // 🔹 File upload handler
-  onFileChange(event: any): void {
-    const file = event?.target?.files?.[0] ?? null;
-    console.log('File selected:', file);
+  /** Submit the form */
+  saveTask(): void {
+    if (this.taskForm.invalid) {
+      alert('Please fill all required fields!');
+      return;
+    }
+
+    const payload = {
+      employeeId: this.employeeId,
+      employeeName: this.employeeName,
+      ...this.taskForm.value
+    };
+
+    console.log('Final Payload:', payload);
+
+    this.http.post('http://localhost:8080/api/v1/tasks/submit', payload)
+      .subscribe({
+        next: () => {
+          alert('Task saved successfully!');
+        },
+        error: (err) => {
+          console.error('Error saving task:', err);
+        }
+      });
   }
 }
