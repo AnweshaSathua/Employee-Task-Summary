@@ -58,12 +58,14 @@ export class TaskFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.employeeId = localStorage.getItem('employeeId') || '';
-  this.employeeName = localStorage.getItem('employeeName') || '';
- 
-  if (!this.employeeId || !this.employeeName) {
-    console.warn('⚠️ Missing login details. Redirecting...');
-    // Optional: redirect to login
+    // 1️⃣ Load employeeId from login details (localStorage/sessionStorage)
+    const storedId = localStorage.getItem('employeeId');
+    if (storedId) {
+      this.employeeId = storedId;
+      this.loadEmployeeDetails(storedId);
+  }else {
+    console.warn('⚠️ No employeeId found in localStorage!');
+  }
   }
 
 
@@ -155,5 +157,4 @@ export class TaskFormComponent implements OnInit {
       });
   }
 }
-
 
