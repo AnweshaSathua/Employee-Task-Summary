@@ -17,6 +17,7 @@ export class TaskFormComponent implements OnInit {
 
   expandedTaskIndex: number | null = null;
 
+  // Example project list
   projects: string[] = [
     "Account, Card, Deposit, customer Onboarding",
     "Agent Banking",
@@ -47,8 +48,9 @@ export class TaskFormComponent implements OnInit {
     "Senthil Selvaraj"
   ];
 
-  private apiUrl = 'http://localhost:8080/api/v1/tasks/submit';
-  private employeeApi = 'http://localhost:8080/api/v1/employees';
+  // ✅ API Endpoints
+  private taskApiUrl = 'http://localhost:8080/api/v1/tasks/submit';
+  private employeeApiUrl = 'http://localhost:8080/api/v1/employees';
 
   constructor(private fb: FormBuilder, private http: HttpClient) {
     this.taskForm = this.fb.group({
@@ -57,20 +59,19 @@ export class TaskFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Get Employee ID from localStorage
-    this.employeeId = localStorage.getItem('employeeId');
-
+    // ✅ Employee ID comes from login/session/localStorage
+    this.employeeId = localStorage.getItem('employeeId'); // 👈 stored during login
     if (this.employeeId) {
       this.loadEmployeeDetails(this.employeeId);
-    } else {
-      console.warn("⚠️ No employeeId found in localStorage.");
     }
   }
 
+  // 🔹 FormArray getter
   get tasks(): FormArray {
     return this.taskForm.get('tasks') as FormArray;
   }
 
+  // 🔹 Create a new Task form group
   private createTask(): FormGroup {
     return this.fb.group({
       date: ['', Validators.required],
@@ -86,14 +87,17 @@ export class TaskFormComponent implements OnInit {
     });
   }
 
+  // 🔹 Expand/collapse toggle
   toggleTask(index: number): void {
     this.expandedTaskIndex = this.expandedTaskIndex === index ? null : index;
   }
 
+  // 🔹 Add task row
   addTask(): void {
     this.tasks.push(this.createTask());
   }
 
+  // 🔹 Remove task row
   removeTask(i: number): void {
     this.tasks.removeAt(i);
     if (this.expandedTaskIndex === i) {
@@ -101,6 +105,7 @@ export class TaskFormComponent implements OnInit {
     }
   }
 
+  // 🔹 Save task to backend
   saveTask(): void {
     if (this.taskForm.valid && this.employeeId && this.employeeName) {
       const finalData = {
@@ -109,7 +114,7 @@ export class TaskFormComponent implements OnInit {
         tasks: this.taskForm.value.tasks
       };
 
-      this.http.post(`${this.apiUrl}/${this.employeeId}`, finalData).subscribe({
+      this.http.post(`${this.taskApiUrl}/${this.employeeId}`, finalData).subscribe({
         next: (response) => {
           console.log('✅ Data saved on backend:', response);
           alert('✅ Task saved successfully!');
@@ -125,18 +130,13 @@ export class TaskFormComponent implements OnInit {
     }
   }
 
+  // 🔹 Fetch employee details by ID
   private loadEmployeeDetails(employeeId: string): void {
-    this.http.get<any>(`${this.employeeApi}/${employeeId}`).subscribe({
+    this.http.get<any>(`${this.employeeApiUrl}/${employeeId}`).subscribe({
       next: (employee) => {
-        console.log("🔎 Backend response:", employee);
-
-        // Handle both naming styles from backend
-        this.employeeName = employee.employeeName ?? employee.name ?? null;
-        this.employeeId = employee.employeeId ?? employee.id ?? this.employeeId;
-
-        if (!this.employeeName) {
-          console.warn("⚠️ Employee name not found in API response.");
-        }
+        // 👇 map this to your backend response keys
+        this.employeeName = employee.employeeName || employee.name;
+        console.log('✅ Employee details loaded:', employee);
       },
       error: (err) => {
         console.error('❌ Failed to load employee details:', err);
@@ -144,8 +144,9 @@ export class TaskFormComponent implements OnInit {
     });
   }
 
+  // 🔹 File upload handler
   onFileChange(event: any): void {
     const file = event?.target?.files?.[0] ?? null;
-    console.log('📂 File selected:', file);
+    console.log('File selected:', file);
   }
 }
