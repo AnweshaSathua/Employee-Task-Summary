@@ -101,7 +101,7 @@ export class TaskFormComponent implements OnInit {
       teamLead: ['', Validators.required],
       taskTitle: ['', Validators.required],
       description: ['', Validators.required],
-      reference: [null],
+      reference: [''],
       prLink: [''],
       status: ['', Validators.required],
       hours: ['', Validators.required],
@@ -182,5 +182,6 @@ export class TaskFormComponent implements OnInit {
       });
   }
 }
+
 
 
