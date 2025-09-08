@@ -3,11 +3,12 @@ import { FormArray, FormBuilder, FormGroup, Validators, ReactiveFormsModule, For
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { createEmitAndSemanticDiagnosticsBuilderProgram } from 'typescript';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-task-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule, RouterModule],
   templateUrl: './task-form.component.html',
   styleUrls: ['./task-form.component.css']
 })
@@ -49,23 +50,46 @@ export class TaskFormComponent implements OnInit {
     "Senthil Selvaraj"
   ];
 
+
   
 
-  constructor(private fb: FormBuilder, private http: HttpClient) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private activatedRouter: ActivatedRoute) {
     this.taskForm = this.fb.group({
       tasks: this.fb.array([this.createTask()])
     });
+
+    // console.log("Query params:", this.router.get);
+   
   }
 
   ngOnInit(): void {
-    // 1️⃣ Load employeeId from login details (localStorage/sessionStorage)
-    const storedId = localStorage.getItem('employeeId');
-    if (storedId) {
-      this.employeeId = storedId;
-      this.loadEmployeeDetails(storedId);
-  }else {
-    console.warn('⚠️ No employeeId found in localStorage!');
-  }
+  //   this.activatedRouter.queryParamMap.subscribe(params => {
+  //    const empId = params.get('employeeId');
+  //    if (empId) {
+  //      this.employeeId = empId;
+  //      localStorage.setItem('employeeId', empId);
+  //      this.loadEmployeeDetails(empId);
+  //  }else {
+  //    console.warn('⚠️ No employeeId found in localStorage!');
+  //  }
+  //  })
+
+  this.activatedRouter.queryParamMap.subscribe(params => {
+    const empIdFromUrl = params.get('employeeId');
+    const storedEmpId = localStorage.getItem('employeeId');
+
+    if (empIdFromUrl) {
+      this.employeeId = empIdFromUrl;
+      localStorage.setItem('employeeId', empIdFromUrl);
+      this.loadEmployeeDetails(empIdFromUrl);
+    } else if (storedEmpId) {
+      this.employeeId = storedEmpId;
+      this.loadEmployeeDetails(storedEmpId);
+    } else {
+      console.warn('⚠️ No employeeId found in URL or localStorage!');
+    }
+  });
+
   }
 
 
@@ -120,11 +144,12 @@ export class TaskFormComponent implements OnInit {
 
   /** Fetch employee details from backend */
   loadEmployeeDetails(employeeId: string): void {
-    this.http.get<any>(`http://192.168.0.22:8243/employee/api/employees/${employeeId}`)
+    this.http.get<any>(`https://192.168.0.22:8243/employee/api/fetchAll/${employeeId}`)
       .subscribe({
         next: (res) => {
           this.employeeName = res.employeeName; // backend should return employeeName
-        },
+          
+       },
         error: (err) => {
           console.error('Error fetching employee details:', err);
         }
@@ -146,7 +171,7 @@ export class TaskFormComponent implements OnInit {
 
     console.log('Final Payload:', payload);
 
-    this.http.post('http://192.168.0.22:8243/employee/api/v1/tasks/submit', payload)
+    this.http.post('https://192.168.0.22:8243/employee/api/v1/tasks/submit', payload)
       .subscribe({
         next: () => {
           alert('Task saved successfully!');
