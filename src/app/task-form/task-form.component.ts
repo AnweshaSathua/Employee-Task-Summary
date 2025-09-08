@@ -144,7 +144,7 @@ export class TaskFormComponent implements OnInit {
 
   /** Fetch employee details from backend */
   loadEmployeeDetails(employeeId: string): void {
-    this.http.get<any>(`https://192.168.0.22:8243/employee/api/fetchAll/${employeeId}`)
+    this.http.get<any>(`https://192.168.0.22:8243/employee/api/${employeeId}`)
       .subscribe({
         next: (res) => {
           this.employeeName = res.employeeName; // backend should return employeeName
@@ -182,4 +182,5 @@ export class TaskFormComponent implements OnInit {
       });
   }
 }
+
 
