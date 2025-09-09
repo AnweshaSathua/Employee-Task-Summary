@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { createEmitAndSemanticDiagnosticsBuilderProgram } from 'typescript';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-
+ 
 @Component({
   selector: 'app-task-form',
   standalone: true,
@@ -16,9 +16,9 @@ export class TaskFormComponent implements OnInit {
   taskForm: FormGroup;
   employeeName: string = '';
   employeeId: string = '';
-
+ 
   expandedTaskIndex: number | null=0;
-
+ 
   // Example project list
   projects: string[] = [
     "Account, Card, Deposit, customer Onboarding",
@@ -35,7 +35,7 @@ export class TaskFormComponent implements OnInit {
     "Wallet Banking ",
     "Website"
   ];
-
+ 
   teamLeads: string[] = [
     "Sakthivel M",
     "Vidyashree Acharya",
@@ -49,19 +49,18 @@ export class TaskFormComponent implements OnInit {
     "Srinivasan T",
     "Senthil Selvaraj"
   ];
-
-
+ 
+ 
   
-
+ 
   constructor(private fb: FormBuilder, private http: HttpClient, private activatedRouter: ActivatedRoute) {
     this.taskForm = this.fb.group({
       tasks: this.fb.array([this.createTask()])
     });
-
+ 
     // console.log("Query params:", this.router.get);
-   
   }
-
+ 
   ngOnInit(): void {
   //   this.activatedRouter.queryParamMap.subscribe(params => {
   //    const empId = params.get('employeeId');
@@ -73,11 +72,11 @@ export class TaskFormComponent implements OnInit {
   //    console.warn('⚠️ No employeeId found in localStorage!');
   //  }
   //  })
-
+ 
   this.activatedRouter.queryParamMap.subscribe(params => {
     const empIdFromUrl = params.get('employeeId');
     const storedEmpId = localStorage.getItem('employeeId');
-
+ 
     if (empIdFromUrl) {
       this.employeeId = empIdFromUrl;
       localStorage.setItem('employeeId', empIdFromUrl);
@@ -89,10 +88,10 @@ export class TaskFormComponent implements OnInit {
       console.warn('⚠️ No employeeId found in URL or localStorage!');
     }
   });
-
+ 
   }
-
-
+ 
+ 
   // 🔹 Create a new Task form group
   createTask(): FormGroup {
     return this.fb.group({
@@ -108,18 +107,18 @@ export class TaskFormComponent implements OnInit {
       extraHours: ['']
     });
   }
-
+ 
    /** Getter for tasks form array */
   get tasks(): FormArray {
     return this.taskForm.get('tasks') as FormArray;
   }
-
+ 
   /** Add a new task */
   addTask(): void {
     this.tasks.push(this.createTask());
     this.expandedTaskIndex = this.tasks.length - 1; // expand new task
   }
-
+ 
   /** Remove a task */
   removeTask(index: number): void {
     this.tasks.removeAt(index);
@@ -127,12 +126,12 @@ export class TaskFormComponent implements OnInit {
       this.expandedTaskIndex = null;
     }
   }
-
+ 
   /** Expand/Collapse task */
   toggleTask(index: number): void {
     this.expandedTaskIndex = this.expandedTaskIndex === index ? null : index;
   }
-
+ 
   /** File input change handler */
   onFileChange(event: any): void {
     const file = event.target.files[0];
@@ -141,22 +140,19 @@ export class TaskFormComponent implements OnInit {
       // TODO: implement file upload logic
     }
   }
-
+ 
   /** Fetch employee details from backend */
   loadEmployeeDetails(employeeId: string): void {
-    this.http.get<any>(`https://192.168.0.22:8243/employee/api/fetchAll/${employeeId}`)
+    this.http.get<any>(`https://192.168.0.22:8243/employee/api/${employeeId}`)
       .subscribe({
         next: (res) => {
           this.employeeName = res.employeeName; // backend should return employeeName
-          
        },
         error: (err) => {
           console.error('Error fetching employee details:', err);
         }
       });
   }
-
-  /** Submit the form */
   saveTask(): void {
   if (this.taskForm.invalid) {
     alert('Please fill all required fields!');
@@ -165,16 +161,11 @@ export class TaskFormComponent implements OnInit {
 
   const formData = new FormData();
 
-  // Convert tasks array to JSON string
-  formData.append('tasks', JSON.stringify(this.taskForm.value.tasks));
+  // Convert tasks array to JSON string  formData.append('tasks', JSON.stringify(this.taskForm.value.tasks));
 
-  // Attach files for each task if they exist
-  this.tasks.controls.forEach((control, index) => {
-    const taskGroup = control as FormGroup;
-    const fileControl = taskGroup.get('file');
-    if (fileControl && fileControl.value) {
-      formData.append('files', fileControl.value); // append File object
-    }
+  // Attach files for each task if they existthis.tasks.controls.forEach((taskGroup: FormGroup, index: number) => {
+    const fileControl = taskGroup.get('file'); // assuming you have a file controlif (fileControl && fileControl.value) {
+      formData.append('files', fileControl.value); // append File object    }
   });
 
   this.http.post(
@@ -190,3 +181,4 @@ export class TaskFormComponent implements OnInit {
   });
 }
 }
+ 
