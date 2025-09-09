@@ -138,7 +138,7 @@ export class TaskFormComponent implements OnInit {
   if (file && index !== undefined) {
     this.tasks.at(index).get('file')?.setValue(file);
     console.log(`Selected file for task ${index}:`, file);
-  } else {
+  } else if (index !== undefined) {
     this.tasks.at(index).get('file')?.setValue(null);
   }
 }
@@ -197,5 +197,6 @@ export class TaskFormComponent implements OnInit {
 }
 
 }
+
 
 
