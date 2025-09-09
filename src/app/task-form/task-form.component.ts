@@ -133,14 +133,16 @@ export class TaskFormComponent implements OnInit {
   }
  
   /** File input change handler */
-  onFileChange(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      console.log('Selected file:', file);
-      // TODO: implement file upload logic
-    }
+ onFileChange(event: any, index: number): void {
+  const file = event.target.files[0];
+  if (file) {
+    this.tasks.at(index).get('file')?.setValue(file);
+    console.log(`Selected file for task ${index}:`, file);
+  } else {
+    this.tasks.at(index).get('file')?.setValue(null);
   }
- 
+}
+
   /** Fetch employee details from backend */
   loadEmployeeDetails(employeeId: string): void {
     this.http.get<any>(`https://192.168.0.22:8243/employee/api/${employeeId}`)
@@ -153,8 +155,7 @@ export class TaskFormComponent implements OnInit {
         }
       });
   }
- /** Submit the form */
-  saveTask(): void {
+ saveTask(): void {
   if (this.taskForm.invalid) {
     alert('Please fill all required fields!');
     return;
@@ -162,28 +163,38 @@ export class TaskFormComponent implements OnInit {
 
   const formData = new FormData();
 
-  // Convert tasks array to JSON string
-  formData.append('tasks', JSON.stringify(this.taskForm.value.tasks));
+  // Attach tasks as JSON (Blob ensures it's application/json, not a string)
+  const taskBlob = new Blob([JSON.stringify(this.taskForm.value.tasks)], {
+    type: 'application/json'
+  });
+  formData.append('tasks', taskBlob);
 
-  // Attach files for each task if they exist
-  this.tasks.controls.forEach((control, index) => {
-    const taskGroup = control as FormGroup;
-    const fileControl = taskGroup.get('file');
-    if (fileControl && fileControl.value) {
-      formData.append('files', fileControl.value); // append File object
+  // Attach files only if they exist
+  this.tasks.controls.forEach((control) => {
+    const file = control.get('file')?.value;
+    if (file) {
+      formData.append('files', file, file.name);
     }
   });
 
-  this.http.post(
+  this.http.post<any>(
     `https://192.168.0.22:8243/employee/api/v1/tasks/submit/${this.employeeId}`,
-    formData
+    formData,
+    {
+      headers: {
+        Authorization: 'd44d4aeb-be2d-4dff-ba36-2526d7e19722'
+      }
+    }
   ).subscribe({
-    next: () => {
+    next: (res) => {
+      console.log('✅ Success:', res);
       alert('Task saved successfully!');
     },
     error: (err) => {
-      console.error('Error saving task:', err);
+      console.error('❌ Error saving task:', err);
     }
   });
 }
+
 }
+
