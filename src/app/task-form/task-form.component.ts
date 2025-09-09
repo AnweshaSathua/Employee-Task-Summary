@@ -133,9 +133,9 @@ export class TaskFormComponent implements OnInit {
   }
  
   /** File input change handler */
- onFileChange(event: any, index: number): void {
+ onFileChange(event: any, index?: number): void {
   const file = event.target.files[0];
-  if (file) {
+  if (file && index !== undefined) {
     this.tasks.at(index).get('file')?.setValue(file);
     console.log(`Selected file for task ${index}:`, file);
   } else {
@@ -197,4 +197,5 @@ export class TaskFormComponent implements OnInit {
 }
 
 }
+
 
