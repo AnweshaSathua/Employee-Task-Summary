@@ -104,7 +104,8 @@ export class TaskFormComponent implements OnInit {
       prLink: [''],
       status: ['', Validators.required],
       hours: ['', Validators.required],
-      extraHours: ['']
+      extraHours: [''],
+      file: [null]
     });
   }
  
@@ -133,7 +134,8 @@ export class TaskFormComponent implements OnInit {
   }
  
   /** File input change handler */
- onFileChange(event: any, index?: number): void {
+ 
+onFileChange(event: any, index?: number): void {
   const file = event.target.files[0];
   if (file && index !== undefined) {
     this.tasks.at(index).get('file')?.setValue(file);
@@ -197,6 +199,7 @@ export class TaskFormComponent implements OnInit {
 }
 
 }
+
 
 
 
