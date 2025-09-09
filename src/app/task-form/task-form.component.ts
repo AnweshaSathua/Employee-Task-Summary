@@ -153,6 +153,7 @@ export class TaskFormComponent implements OnInit {
         }
       });
   }
+ /** Submit the form */
   saveTask(): void {
   if (this.taskForm.invalid) {
     alert('Please fill all required fields!');
@@ -161,11 +162,16 @@ export class TaskFormComponent implements OnInit {
 
   const formData = new FormData();
 
-  // Convert tasks array to JSON string  formData.append('tasks', JSON.stringify(this.taskForm.value.tasks));
+  // Convert tasks array to JSON string
+  formData.append('tasks', JSON.stringify(this.taskForm.value.tasks));
 
-  // Attach files for each task if they existthis.tasks.controls.forEach((taskGroup: FormGroup, index: number) => {
-    const fileControl = taskGroup.get('file'); // assuming you have a file controlif (fileControl && fileControl.value) {
-      formData.append('files', fileControl.value); // append File object    }
+  // Attach files for each task if they exist
+  this.tasks.controls.forEach((control, index) => {
+    const taskGroup = control as FormGroup;
+    const fileControl = taskGroup.get('file');
+    if (fileControl && fileControl.value) {
+      formData.append('files', fileControl.value); // append File object
+    }
   });
 
   this.http.post(
@@ -181,4 +187,3 @@ export class TaskFormComponent implements OnInit {
   });
 }
 }
- 
