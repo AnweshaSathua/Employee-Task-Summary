@@ -166,10 +166,8 @@ onFileChange(event: any, index?: number): void {
   const formData = new FormData();
 
   // Attach tasks as JSON (Blob ensures it's application/json, not a string)
-  const taskBlob = new Blob([JSON.stringify(this.taskForm.value.tasks)], {
-    type: 'application/json'
-  });
-  formData.append('tasks', taskBlob);
+  
+formData.append('tasks', JSON.stringify(this.taskForm.value.tasks));
 
   // Attach files only if they exist
   this.tasks.controls.forEach((control) => {
@@ -199,6 +197,7 @@ onFileChange(event: any, index?: number): void {
 }
 
 }
+
 
 
 
