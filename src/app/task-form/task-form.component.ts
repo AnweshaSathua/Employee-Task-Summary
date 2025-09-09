@@ -144,7 +144,7 @@ export class TaskFormComponent implements OnInit {
 
   /** Fetch employee details from backend */
   loadEmployeeDetails(employeeId: string): void {
-    this.http.get<any>(`https://192.168.0.22:8243/employee/api/${employeeId}`)
+    this.http.get<any>(`https://192.168.0.22:8243/employee/api/fetchAll/${employeeId}`)
       .subscribe({
         next: (res) => {
           this.employeeName = res.employeeName; // backend should return employeeName
@@ -158,32 +158,35 @@ export class TaskFormComponent implements OnInit {
 
   /** Submit the form */
   saveTask(): void {
-    if (this.taskForm.invalid) {
-      alert('Please fill all required fields!');
-      return;
-    }
-
-    const payload = {
-      employeeId: this.employeeId,
-      employeeName: this.employeeName,
-      ...this.taskForm.value
-    };
-
-    console.log('Final Payload:', payload);
-
-    this.http.post(`https://192.168.0.22:8243/employee/api/v1/tasks/submit/${this.employeeId}`, payload)
-      .subscribe({
-        next: () => {
-          alert('Task saved successfully!');
-        },
-        error: (err) => {
-          console.error('Error saving task:', err);
-        }
-      });
+  if (this.taskForm.invalid) {
+    alert('Please fill all required fields!');
+    return;
   }
+
+  const formData = new FormData();
+
+  // Convert tasks array to JSON string
+  formData.append('tasks', JSON.stringify(this.taskForm.value.tasks));
+
+  // Attach files for each task if they exist
+  this.tasks.controls.forEach((control, index) => {
+    const taskGroup = control as FormGroup;
+    const fileControl = taskGroup.get('file');
+    if (fileControl && fileControl.value) {
+      formData.append('files', fileControl.value); // append File object
+    }
+  });
+
+  this.http.post(
+    `https://192.168.0.22:8243/employee/api/v1/tasks/submit/${this.employeeId}`,
+    formData
+  ).subscribe({
+    next: () => {
+      alert('Task saved successfully!');
+    },
+    error: (err) => {
+      console.error('Error saving task:', err);
+    }
+  });
 }
-
-
-
-
-
+}
