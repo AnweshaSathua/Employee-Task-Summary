@@ -88,26 +88,31 @@ export class TaskFormComponent implements OnInit {
       console.warn('⚠️ No employeeId found in URL or localStorage!');
     }
   });
+
+    this.taskForm = this.fb.group({
+    tasks: this.fb.array([this.createTask(true)])
+  });
+ 
  
   }
  
  
   // 🔹 Create a new Task form group
-  createTask(): FormGroup {
-    return this.fb.group({
-      date: ['', Validators.required],
-      project: ['', Validators.required],
-      teamLead: ['', Validators.required],
-      taskTitle: ['', Validators.required],
-      description: ['', Validators.required],
-      reference: [''],
-      prLink: [''],
-      status: ['', Validators.required],
-      hours: ['', Validators.required],
-      extraHours: [''],
-      file: [null]
-    });
-  }
+  createTask(isFirst: boolean = false): FormGroup {
+  return this.fb.group({
+    date: [isFirst ? '' : null, isFirst ? Validators.required : []],
+    project: ['', Validators.required],
+    teamLead: ['', Validators.required],
+    taskTitle: ['', Validators.required],
+    description: ['', Validators.required],
+    reference: [''],
+    prLink: [''],
+    status: ['', Validators.required],
+    hours: ['', Validators.required],
+    extraHours: [''],
+    file: [null]   // 🔹 add this so file control exists
+  });
+}
  
    /** Getter for tasks form array */
   get tasks(): FormArray {
@@ -197,6 +202,7 @@ formData.append('tasks', JSON.stringify(this.taskForm.value.tasks));
 }
 
 }
+
 
 
 
