@@ -194,12 +194,14 @@ formData.append('tasks', JSON.stringify(this.taskForm.value.tasks));
 }
 onExit(): void {
     if (confirm('Are you sure you want to exit?')) {
-      window.close(); // or this.router.navigate(['/login']);
-    }
+    localStorage.clear();
+    window.location.href = '/assets/thank-you.jpg';
   }
+}
   
 
 }
+
 
 
 
