@@ -296,4 +296,34 @@ button:hover {
   width: 100%;
   box-sizing: border-box;
 }
+/* 🔴 Exit button style */
+.btn-exit {
+  background-color: #d9534f;   /* Bootstrap red */
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover effect */
+.btn-exit:hover {
+  background-color: #c9302c;
+  transform: scale(1.05);
+}
+
+/* Active/pressed effect */
+.btn-exit:active {
+  background-color: #a52a2a;
+  transform: scale(0.98);
+}
+
+/* Align with other buttons */
+.form-actions .btn-exit {
+  margin-left: 10px;
+}
+
 
