@@ -3,7 +3,7 @@ import { FormArray, FormBuilder, FormGroup, Validators, ReactiveFormsModule, For
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { createEmitAndSemanticDiagnosticsBuilderProgram } from 'typescript';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
  
 @Component({
   selector: 'app-task-form',
@@ -53,7 +53,7 @@ export class TaskFormComponent implements OnInit {
  
   
  
-  constructor(private fb: FormBuilder, private http: HttpClient, private activatedRouter: ActivatedRoute) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private activatedRouter: ActivatedRoute, private router: Router) {
     this.taskForm = this.fb.group({
       tasks: this.fb.array([this.createTask()])
     });
@@ -62,16 +62,6 @@ export class TaskFormComponent implements OnInit {
   }
  
   ngOnInit(): void {
-  //   this.activatedRouter.queryParamMap.subscribe(params => {
-  //    const empId = params.get('employeeId');
-  //    if (empId) {
-  //      this.employeeId = empId;
-  //      localStorage.setItem('employeeId', empId);
-  //      this.loadEmployeeDetails(empId);
-  //  }else {
-  //    console.warn('⚠️ No employeeId found in localStorage!');
-  //  }
-  //  })
  
   this.activatedRouter.queryParamMap.subscribe(params => {
     const empIdFromUrl = params.get('employeeId');
@@ -194,14 +184,23 @@ formData.append('tasks', JSON.stringify(this.taskForm.value.tasks));
     next: (res) => {
       console.log('✅ Success:', res);
       alert('Task saved successfully! You can close the Tab!');
+      // 👉 Navigate to Final Review page with submitted data
+        this.router.navigate(['/final-review'], { state: { submissionData: this.taskForm.value.tasks } });
     },
     error: (err) => {
       console.error('❌ Error saving task:', err);
     }
   });
 }
+onExit(): void {
+    if (confirm('Are you sure you want to exit?')) {
+      window.close(); // or this.router.navigate(['/login']);
+    }
+  }
+  
 
 }
+
 
 
 
