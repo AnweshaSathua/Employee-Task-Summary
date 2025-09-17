@@ -152,7 +152,7 @@ onFileChange(event: any, index?: number): void {
         }
       });
   }
- saveTask(): void {
+saveTask(): void {
   if (this.taskForm.invalid) {
     alert('Please fill all required fields!');
     return;
@@ -160,11 +160,10 @@ onFileChange(event: any, index?: number): void {
 
   const formData = new FormData();
 
-  // Attach tasks as JSON (Blob ensures it's application/json, not a string)
-  
-formData.append('tasks', JSON.stringify(this.taskForm.value.tasks));
+  // Attach tasks as JSON
+  formData.append('tasks', JSON.stringify(this.taskForm.value.tasks));
 
-  // Attach files only if they exist
+  // Attach files
   this.tasks.controls.forEach((control) => {
     const file = control.get('file')?.value;
     if (file) {
@@ -183,15 +182,24 @@ formData.append('tasks', JSON.stringify(this.taskForm.value.tasks));
   ).subscribe({
     next: (res) => {
       console.log('✅ Success:', res);
-      alert('Task saved successfully! You can close the Tab!');
-      // 👉 Navigate to Final Review page with submitted data
-        this.router.navigate(['/final-review'], { state: { submissionData: this.taskForm.value.tasks } });
+      alert('Task saved successfully!');
+
+      // 🔹 Reset the form (clear all tasks)
+      this.taskForm.reset();
+      this.taskForm.setControl('tasks', this.fb.array([this.createTask(true)]));
+
+      // 🔹 Reset expanded index
+      this.expandedTaskIndex = 0;
+
+      // 👉 If you still want to refresh the page completely, uncomment:
+      // window.location.reload();
     },
     error: (err) => {
       console.error('❌ Error saving task:', err);
     }
   });
 }
+
 onExit(): void {
     if (confirm('Are you sure you want to exit?')) {
     localStorage.clear();
@@ -201,6 +209,7 @@ onExit(): void {
   
 
 }
+
 
 
 
