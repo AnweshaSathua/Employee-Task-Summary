@@ -5,6 +5,8 @@
   </div>
 </header>
 
+
+
 <!-- Employee Details Section -->
 <div class="employee-card">
   <div class="employee-row">
@@ -153,8 +155,27 @@
     <button type="button" class="btn btn-exit" (click)="onExit()">🚪 Exit</button>
   </div>
 
-</form>
+  <!-- 🔹 Custom Alert Modal -->
+<div *ngIf="showAlert" class="custom-alert-overlay">
+  <div class="custom-alert-box">
+    <p>{{ alertMessage }}</p>
+    <button (click)="closeCustomAlert()">OK</button>
+  </div>
+</div>
 
+<!-- 🔹 Custom Confirm Modal -->
+<div *ngIf="showConfirm" class="custom-alert-overlay">
+  <div class="custom-alert-box">
+    <p>{{ confirmMessage }}</p>
+    <div class="btn-group">
+      <button class="btn-yes" (click)="confirmYes()">Yes</button>
+      <button class="btn-no" (click)="confirmNo()">No</button>
+    </div>
+  </div>
+</div>
+
+
+</form>
 
 
 
