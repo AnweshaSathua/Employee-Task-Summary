@@ -50,8 +50,14 @@ export class TaskFormComponent implements OnInit {
     "Senthil Selvaraj"
   ];
  
- 
+  // --- Alert properties ---
   
+  alertMessage: string = '';
+  showAlert: boolean = false;
+
+  confirmMessage: string = '';
+  showConfirm: boolean = false;
+  confirmCallback: (() => void) | null = null;
  
   constructor(private fb: FormBuilder, private http: HttpClient, private activatedRouter: ActivatedRoute, private router: Router) {
     this.taskForm = this.fb.group({
@@ -116,12 +122,14 @@ export class TaskFormComponent implements OnInit {
   }
  
   /** Remove a task */
-  removeTask(index: number): void {
+ removeTask(index: number): void {
+  this.showCustomConfirm('Are you sure you want to delete this task?', () => {
     this.tasks.removeAt(index);
     if (this.expandedTaskIndex === index) {
       this.expandedTaskIndex = null;
     }
-  }
+  });
+}
  
   /** Expand/Collapse task */
   toggleTask(index: number): void {
@@ -154,7 +162,7 @@ onFileChange(event: any, index?: number): void {
   }
 saveTask(): void {
   if (this.taskForm.invalid) {
-    alert('Please fill all required fields!');
+    this.showCustomAlert('Please fill all required fields!');
     return;
   }
 
@@ -182,7 +190,7 @@ saveTask(): void {
   ).subscribe({
     next: (res) => {
       console.log('✅ Success:', res);
-      alert('Task saved successfully!');
+      this.showCustomAlert('Task saved successfully!');
 
       // 🔹 Reset the form (clear all tasks)
       this.taskForm.reset();
@@ -196,20 +204,52 @@ saveTask(): void {
     },
     error: (err) => {
       console.error('❌ Error saving task:', err);
+      this.showCustomAlert('Error saving task!');
     }
   });
 }
 
 onExit(): void {
-    if (confirm('Are you sure you want to exit?')) {
+   this.showCustomConfirm('Are you sure you want to exit?', () => {
     localStorage.clear();
     window.location.href = 'https://login-ivory-tau.vercel.app/';
+  });
+}  
+
+  showCustomAlert(message: string): void {
+    this.alertMessage = message;
+    this.showAlert = true;
   }
-}
-  
+
+closeCustomAlert(): void {
+    this.showAlert = false;
+    this.alertMessage = '';
+  }
+
+showCustomConfirm(message: string, callback: () => void): void {
+    this.confirmMessage = message;
+    this.confirmCallback = callback;
+    this.showConfirm = true;
+  }
+
+confirmYes(): void {
+    if (this.confirmCallback) this.confirmCallback();
+    this.showConfirm = false;
+  }
+
+  confirmNo(): void {
+    this.showConfirm = false;
+    this.confirmMessage = '';
+    this.confirmCallback = null;
+  }
+ 
+// closeConfirm() {
+//   this.showConfirm = false;
+//   this.confirmMessage = '';
+//   this.confirmCallback = null;
+// }
 
 }
-
 
 
 
