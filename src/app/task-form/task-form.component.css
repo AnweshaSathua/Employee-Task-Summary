@@ -25,8 +25,8 @@
   background: rgba(255, 255, 255, 0.92);
   padding: 20px;
   border-radius: 12px;
-  width: 95%;          /* default for smaller screens */
-  max-width: 1000px;   /* keeps it neat on mobile/tablets */
+  width: 90%;         /* ✅ makes it responsive */
+  max-width: 2200px;  /* ✅ increases allowed max width */
   margin: 20px auto;  /* center align */
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
   font-family: Arial, sans-serif;
@@ -40,14 +40,14 @@
 @media (min-width: 1200px) {
   .task-form {
     width: 95%;          /* almost full width */
-    max-width: 1600px;   /* adjust this as needed */
+    max-width: 2200px;   /* adjust this as needed */
   }
 }
 
 /* 🖥️ Ultra-wide monitors */
 @media (min-width: 1800px) {
   .task-form {
-    max-width: 2000px;   /* extra wide if you want */
+    max-width: 2200px;   /* extra wide if you want */
   }
 }
 
@@ -162,8 +162,8 @@ button:hover {
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   margin: 10px auto;
-  width: 100%;              /* ✅ responsive */
-  max-width: 1380px;         /* ✅ safe limit */
+  width: 90%;         /* ✅ makes it responsive */
+  max-width: 2200px;  /* ✅ increases allowed max width */
   margin-top: 60px;
 }
 
@@ -434,6 +434,7 @@ button:hover {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
 }
+
 
 
 
