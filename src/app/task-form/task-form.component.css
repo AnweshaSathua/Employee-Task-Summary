@@ -25,17 +25,30 @@
   background: rgba(255, 255, 255, 0.92);
   padding: 20px;
   border-radius: 12px;
-  width: 90%;         /* ✅ makes it responsive */
-  max-width: 2200px;  /* ✅ increases allowed max width */
+  width: 95%;          /* default for smaller screens */
+  max-width: 1000px;   /* keeps it neat on mobile/tablets */
   margin: 20px auto;  /* center align */
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
   font-family: Arial, sans-serif;
   position: relative;
   border: 1px solid #ccc;
-
-  /* no inner scroll, expand naturally */
   max-height: none;
   overflow: visible;
+}
+
+/* 🖥️ Desktop screens: make it much wider */
+@media (min-width: 1200px) {
+  .task-form {
+    width: 95%;          /* almost full width */
+    max-width: 1600px;   /* adjust this as needed */
+  }
+}
+
+/* 🖥️ Ultra-wide monitors */
+@media (min-width: 1800px) {
+  .task-form {
+    max-width: 2000px;   /* extra wide if you want */
+  }
 }
 
 /* When you want collapsed mode */
@@ -421,5 +434,6 @@ button:hover {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
 }
+
 
 
