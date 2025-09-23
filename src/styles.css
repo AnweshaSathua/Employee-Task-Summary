@@ -23,8 +23,8 @@ body {
    Form Wrapper
 ====================== */
 .task-form {
-  width: 100%;
-  max-width: 1380px;   /* allow bigger form */
+  width: 90%;
+  max-width: 2200px;   /* allow bigger form */
   min-width: 750px;    /* prevent too small */
   margin: 20px auto;
   padding: 25px;
@@ -34,8 +34,8 @@ body {
 }
 
 .task-form-container {
-  width: 100%;
-  max-width: 900px; 
+  width: 90%;
+  max-width: 2200px; 
   background: #fff;
   border-radius: 12px;
   padding: 25px;
@@ -114,7 +114,7 @@ input[type="date"] {
   -webkit-appearance: none;
   -moz-appearance: none;
   min-width: 600px;
-  max-width: 1380px;
+  max-width: 2200px;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
@@ -193,3 +193,4 @@ button {
     width: 100%;
   }
 }
+
