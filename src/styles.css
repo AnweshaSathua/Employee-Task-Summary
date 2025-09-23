@@ -23,7 +23,7 @@ body {
    Form Wrapper
 ====================== */
 .task-form {
-  width: 90%;
+  width: 100%;
   max-width: 2200px;   /* allow bigger form */
   min-width: 750px;    /* prevent too small */
   margin: 20px auto;
@@ -34,7 +34,7 @@ body {
 }
 
 .task-form-container {
-  width: 90%;
+  width: 100%;
   max-width: 2200px; 
   background: #fff;
   border-radius: 12px;
@@ -176,7 +176,7 @@ button {
 /* ======================
    Responsive
 ====================== */
-@media (max-width: 1380px) {
+@media (max-width: 2200px) {
   .form-row {
     flex-direction: column;
   }
@@ -193,4 +193,5 @@ button {
     width: 100%;
   }
 }
+
 
