@@ -25,7 +25,7 @@
   background: rgba(255, 255, 255, 0.92);
   padding: 20px;
   border-radius: 12px;
-  width: 90%;         /* ✅ makes it responsive */
+  width: 100%;         /* ✅ makes it responsive */
   max-width: 2200px;  /* ✅ increases allowed max width */
   margin: 20px auto;  /* center align */
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
@@ -39,7 +39,7 @@
 /* 🖥️ Desktop screens: make it much wider */
 @media (min-width: 1200px) {
   .task-form {
-    width: 95%;          /* almost full width */
+    width: 100%;          /* almost full width */
     max-width: 2200px;   /* adjust this as needed */
   }
 }
@@ -162,7 +162,7 @@ button:hover {
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   margin: 10px auto;
-  width: 90%;         /* ✅ makes it responsive */
+  width: 100%;         /* ✅ makes it responsive */
   max-width: 2200px;  /* ✅ increases allowed max width */
   margin-top: 60px;
 }
@@ -434,6 +434,7 @@ button:hover {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
 }
+
 
 
 
