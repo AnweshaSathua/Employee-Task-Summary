@@ -1,10 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { createEmitAndSemanticDiagnosticsBuilderProgram } from 'typescript';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
- 
+
 @Component({
   selector: 'app-task-form',
   standalone: true,
@@ -16,10 +15,9 @@ export class TaskFormComponent implements OnInit {
   taskForm: FormGroup;
   employeeName: string = '';
   employeeId: string = '';
- 
-  expandedTaskIndex: number | null=0;
- 
-  // Example project list
+
+  expandedTaskIndex: number | null = 0;
+
   projects: string[] = [
     "Account, Card, Deposit, customer Onboarding",
     "Agent Banking",
@@ -35,7 +33,7 @@ export class TaskFormComponent implements OnInit {
     "Wallet Banking ",
     "Website"
   ];
- 
+
   teamLeads: string[] = [
     "Sakthivel M",
     "Vidyashree Acharya",
@@ -49,190 +47,185 @@ export class TaskFormComponent implements OnInit {
     "Srinivasan T",
     "Senthil Selvaraj"
   ];
- 
-  // --- Alert properties ---
-  
+
   alertMessage: string = '';
   showAlert: boolean = false;
 
   confirmMessage: string = '';
   showConfirm: boolean = false;
   confirmCallback: (() => void) | null = null;
- 
-  constructor(private fb: FormBuilder, private http: HttpClient, private activatedRouter: ActivatedRoute, private router: Router) {
+
+  private isBrowser: boolean;
+
+  constructor(
+    private fb: FormBuilder,
+    private http: HttpClient,
+    private activatedRouter: ActivatedRoute,
+    private router: Router,
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+
     this.taskForm = this.fb.group({
       tasks: this.fb.array([this.createTask()])
     });
- 
-    // console.log("Query params:", this.router.get);
   }
- 
+
   ngOnInit(): void {
- 
-  this.activatedRouter.queryParamMap.subscribe(params => {
-    const empIdFromUrl = params.get('employeeId');
-    const storedEmpId = localStorage.getItem('employeeId');
- 
-    if (empIdFromUrl) {
-      this.employeeId = empIdFromUrl;
-      localStorage.setItem('employeeId', empIdFromUrl);
-      this.loadEmployeeDetails(empIdFromUrl);
-    } else if (storedEmpId) {
-      this.employeeId = storedEmpId;
-      this.loadEmployeeDetails(storedEmpId);
-    } else {
-      console.warn('⚠️ No employeeId found in URL or localStorage!');
-    }
-  });
+    this.activatedRouter.queryParamMap.subscribe(params => {
+      const empIdFromUrl = params.get('employeeId');
+      let storedEmpId: string | null = null;
+
+      if (this.isBrowser) {
+        storedEmpId = localStorage.getItem('employeeId');
+      }
+
+      if (empIdFromUrl) {
+        this.employeeId = empIdFromUrl;
+
+        if (this.isBrowser) {
+          localStorage.setItem('employeeId', empIdFromUrl);
+        }
+
+        this.loadEmployeeDetails(empIdFromUrl);
+      } else if (storedEmpId) {
+        this.employeeId = storedEmpId;
+        this.loadEmployeeDetails(storedEmpId);
+      } else {
+        console.warn('⚠️ No employeeId found in URL or localStorage!');
+      }
+    });
 
     this.taskForm = this.fb.group({
-    tasks: this.fb.array([this.createTask(true)])
-  });
- 
- 
+      tasks: this.fb.array([this.createTask(true)])
+    });
   }
- 
- 
-  // 🔹 Create a new Task form group
+
   createTask(isFirst: boolean = false): FormGroup {
-  return this.fb.group({
-    date: [isFirst ? '' : null, isFirst ? Validators.required : []],
-    project: ['', Validators.required],
-    teamLead: ['', Validators.required],
-    taskTitle: ['', Validators.required],
-    description: ['', Validators.required],
-    reference: [''],
-    prLink: [''],
-    status: ['', Validators.required],
-    hours: ['', Validators.required],
-    extraHours: [''],
-    file: [null]   // 🔹 add this so file control exists
-  });
-}
- 
-   /** Getter for tasks form array */
+    return this.fb.group({
+      date: [isFirst ? '' : null, isFirst ? Validators.required : []],
+      project: ['', Validators.required],
+      teamLead: ['', Validators.required],
+      taskTitle: ['', Validators.required],
+      description: ['', Validators.required],
+      reference: [''],
+      prLink: [''],
+      status: ['', Validators.required],
+      hours: ['', Validators.required],
+      extraHours: [''],
+      file: [null]
+    });
+  }
+
   get tasks(): FormArray {
     return this.taskForm.get('tasks') as FormArray;
   }
- 
-  /** Add a new task */
+
   addTask(): void {
     this.tasks.push(this.createTask());
-    this.expandedTaskIndex = this.tasks.length - 1; // expand new task
+    this.expandedTaskIndex = this.tasks.length - 1;
   }
- 
-  /** Remove a task */
- removeTask(index: number): void {
-  this.showCustomConfirm('Are you sure you want to delete this task?', () => {
-    this.tasks.removeAt(index);
-    if (this.expandedTaskIndex === index) {
-      this.expandedTaskIndex = null;
-    }
-  });
-}
- 
-  /** Expand/Collapse task */
+
+  removeTask(index: number): void {
+    this.showCustomConfirm('Are you sure you want to delete this task?', () => {
+      this.tasks.removeAt(index);
+      if (this.expandedTaskIndex === index) {
+        this.expandedTaskIndex = null;
+      }
+    });
+  }
+
   toggleTask(index: number): void {
     this.expandedTaskIndex = this.expandedTaskIndex === index ? null : index;
   }
- 
-  /** File input change handler */
- 
-onFileChange(event: any, index?: number): void {
-  const file = event.target.files[0];
-  if (file && index !== undefined) {
-    this.tasks.at(index).get('file')?.setValue(file);
-    console.log(`Selected file for task ${index}:`, file);
-  } else if (index !== undefined) {
-    this.tasks.at(index).get('file')?.setValue(null);
-  }
-}
 
-  /** Fetch employee details from backend */
+  onFileChange(event: any, index?: number): void {
+    const file = event.target.files[0];
+    if (file && index !== undefined) {
+      this.tasks.at(index).get('file')?.setValue(file);
+    } else if (index !== undefined) {
+      this.tasks.at(index).get('file')?.setValue(null);
+    }
+  }
+
   loadEmployeeDetails(employeeId: string): void {
     this.http.get<any>(`https://192.168.0.22:8243/employee/api/${employeeId}`)
       .subscribe({
         next: (res) => {
-          this.employeeName = res.employeeName; // backend should return employeeName
-       },
+          this.employeeName = res.employeeName;
+        },
         error: (err) => {
           console.error('Error fetching employee details:', err);
         }
       });
   }
-saveTask(): void {
-  if (this.taskForm.invalid) {
-    this.showCustomAlert('Please fill all required fields!');
-    return;
+
+  saveTask(): void {
+    if (this.taskForm.invalid) {
+      this.showCustomAlert('Please fill all required fields!');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('tasks', JSON.stringify(this.taskForm.value.tasks));
+
+    this.tasks.controls.forEach((control) => {
+      const file = control.get('file')?.value;
+      if (file) {
+        formData.append('files', file, file.name);
+      }
+    });
+
+    this.http.post<any>(
+      `https://192.168.0.22:8243/employee/api/v1/tasks/submit/${this.employeeId}`,
+      formData,
+      {
+        headers: {
+          Authorization: 'd44d4aeb-be2d-4dff-ba36-2526d7e19722'
+        }
+      }
+    ).subscribe({
+      next: (res) => {
+        this.showCustomAlert('Task saved successfully!');
+
+        this.taskForm.reset();
+        this.taskForm.setControl('tasks', this.fb.array([this.createTask(true)]));
+
+        this.expandedTaskIndex = 0;
+      },
+      error: (err) => {
+        console.error('❌ Error saving task:', err);
+        this.showCustomAlert('Error saving task!');
+      }
+    });
   }
 
-  const formData = new FormData();
-
-  // Attach tasks as JSON
-  formData.append('tasks', JSON.stringify(this.taskForm.value.tasks));
-
-  // Attach files
-  this.tasks.controls.forEach((control) => {
-    const file = control.get('file')?.value;
-    if (file) {
-      formData.append('files', file, file.name);
-    }
-  });
-
-  this.http.post<any>(
-    `https://192.168.0.22:8243/employee/api/v1/tasks/submit/${this.employeeId}`,
-    formData,
-    {
-      headers: {
-        Authorization: 'd44d4aeb-be2d-4dff-ba36-2526d7e19722'
+  onExit(): void {
+    this.showCustomConfirm('Are you sure you want to exit?', () => {
+      if (this.isBrowser) {
+        localStorage.clear();
+        window.location.href = 'https://login-ivory-tau.vercel.app/';
       }
-    }
-  ).subscribe({
-    next: (res) => {
-      console.log('✅ Success:', res);
-      this.showCustomAlert('Task saved successfully!');
-
-      // 🔹 Reset the form (clear all tasks)
-      this.taskForm.reset();
-      this.taskForm.setControl('tasks', this.fb.array([this.createTask(true)]));
-
-      // 🔹 Reset expanded index
-      this.expandedTaskIndex = 0;
-
-      // 👉 If you still want to refresh the page completely, uncomment:
-      // window.location.reload();
-    },
-    error: (err) => {
-      console.error('❌ Error saving task:', err);
-      this.showCustomAlert('Error saving task!');
-    }
-  });
-}
-
-onExit(): void {
-   this.showCustomConfirm('Are you sure you want to exit?', () => {
-    localStorage.clear();
-    window.location.href = 'https://login-ivory-tau.vercel.app/';
-  });
-}  
+    });
+  }
 
   showCustomAlert(message: string): void {
     this.alertMessage = message;
     this.showAlert = true;
   }
 
-closeCustomAlert(): void {
+  closeCustomAlert(): void {
     this.showAlert = false;
     this.alertMessage = '';
   }
 
-showCustomConfirm(message: string, callback: () => void): void {
+  showCustomConfirm(message: string, callback: () => void): void {
     this.confirmMessage = message;
     this.confirmCallback = callback;
     this.showConfirm = true;
   }
 
-confirmYes(): void {
+  confirmYes(): void {
     if (this.confirmCallback) this.confirmCallback();
     this.showConfirm = false;
   }
@@ -242,22 +235,4 @@ confirmYes(): void {
     this.confirmMessage = '';
     this.confirmCallback = null;
   }
- 
-// closeConfirm() {
-//   this.showConfirm = false;
-//   this.confirmMessage = '';
-//   this.confirmCallback = null;
-// }
-
 }
-
-
-
-
-
-
-
-
-
-
-
