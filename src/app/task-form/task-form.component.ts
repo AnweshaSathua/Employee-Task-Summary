@@ -88,21 +88,20 @@ export class TaskFormComponent implements OnInit {
         }
 
         this.loadEmployeeDetails(empIdFromUrl);
+        this.loadUnratedTasks(empIdFromUrl);
       } else if (storedEmpId) {
         this.employeeId = storedEmpId;
         this.loadEmployeeDetails(storedEmpId);
+        this.loadUnratedTasks(empIdFromUrl);
       } else {
         console.warn('⚠️ No employeeId found in URL or localStorage!');
       }
-    });
-
-    this.taskForm = this.fb.group({
-      tasks: this.fb.array([this.createTask(true)])
     });
   }
 
   createTask(isFirst: boolean = false): FormGroup {
     return this.fb.group({
+      taskId:[null],
       date: [isFirst ? '' : null, isFirst ? Validators.required : []],
       project: ['', Validators.required],
       teamLead: ['', Validators.required],
@@ -160,6 +159,66 @@ export class TaskFormComponent implements OnInit {
       });
   }
 
+  loadUnratedTasks(employeeId: string): void {
+    this.http.get<any>(`https://192.168.0.22:8243/employee/api/v1/tasks/withoutrating/${employeeId}`)
+      .subscribe({
+        next: (res) => {
+          this.tasks.clear();
+          res.tasks.forEach((task: any, idx: number) => {
+            const formGroup = this.createTask(idx === 0);
+            formGroup.patchValue({
+              taskId: task.taskId,
+              taskTitle: task.taskName,
+              date: task.workDate
+            });
+            this.tasks.push(formGroup);
+          });
+          if (this.tasks.length === 0) {
+            this.tasks.push(this.createTask(true));
+          }
+        },
+        error: (err) => {
+          console.error('Error fetching unrated tasks:', err);
+        }
+      });
+  }
+
+  editTask(index: number): void {
+    const control = this.tasks.at(index);
+    const value = control.value;
+    if (!value.taskId) {
+      this.showCustomAlert('Cannot edit a task without taskId!');
+      return;
+    }
+    const payload = {
+      description: value.description,
+      status: value.status,
+      hours: value.hours,
+      extraHours: value.extraHours,
+      prLink: value.prLink
+    };
+
+    this.http.put<any>(
+      `https://192.168.0.22:8243/employee/api/v1/tasks/update/${value.taskId}`,
+      payload,
+      {
+        headers: {
+          Authorization: 'd44d4aeb-be2d-4dff-ba36-2526d7e19722'
+        }
+      }
+    ).subscribe({
+      next: (res) => {
+        this.showCustomAlert('Task updated successfully!');
+        this.loadUnratedTasks(this.employeeId);
+      },
+      error: (err) => {
+        console.error('❌ Error updating task:', err);
+        this.showCustomAlert('Error updating task!');
+      }
+    });
+  }
+
+
   saveTask(): void {
     if (this.taskForm.invalid) {
       this.showCustomAlert('Please fill all required fields!');
@@ -187,11 +246,10 @@ export class TaskFormComponent implements OnInit {
     ).subscribe({
       next: (res) => {
         this.showCustomAlert('Task saved successfully!');
-
         this.taskForm.reset();
         this.taskForm.setControl('tasks', this.fb.array([this.createTask(true)]));
-
         this.expandedTaskIndex = 0;
+        this.loadUnratedTasks(this.employeeId);
       },
       error: (err) => {
         console.error('❌ Error saving task:', err);
@@ -236,3 +294,4 @@ export class TaskFormComponent implements OnInit {
     this.confirmCallback = null;
   }
 }
+
