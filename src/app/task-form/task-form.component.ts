@@ -80,13 +80,13 @@ export class TaskFormComponent implements OnInit {
         storedEmpId = localStorage.getItem('employeeId');
       }
 
-     const safeEmpId: string = empIdFromUrl!;
-     this.employeeId = safeEmpId;
-     if (this.isBrowser) {
-     localStorage.setItem('employeeId', safeEmpId);
+     if (empIdFromUrl) {
+      this.employeeId = empIdFromUrl;
+      if (this.isBrowser) {
+      localStorage.setItem('employeeId', empIdFromUrl);
       }
-     this.loadEmployeeDetails(safeEmpId);
-     this.loadUnratedTasks(safeEmpId);
+      this.loadEmployeeDetails(empIdFromUrl);
+      this.loadUnratedTasks(empIdFromUrl as string); 
       } else if (storedEmpId) {
         this.employeeId = storedEmpId;
         this.loadEmployeeDetails(storedEmpId);
