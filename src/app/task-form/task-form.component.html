@@ -143,6 +143,9 @@
           <button type="button" class="btn btn-danger" (click)="removeTask(i)" *ngIf="tasks.length > 1">
             ❌ Remove
           </button>
+          <button type="button" class="btn btn-danger" (click)="editTask(i)" *ngIf="tasks.length > 1">
+            ➕ Edit
+          </button>
         </div>
       </div> <!-- ✅ closes collapsible-form -->
     </div>   <!-- ✅ closes task-block -->
@@ -176,6 +179,7 @@
 
 
 </form>
+
 
 
 
