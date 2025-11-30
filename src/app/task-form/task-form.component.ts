@@ -90,7 +90,7 @@ export class TaskFormComponent implements OnInit {
       } else if (storedEmpId) {
         this.employeeId = storedEmpId;
         this.loadEmployeeDetails(storedEmpId);
-        this.loadUnratedTasks(empIdFromUrl);
+        this.loadUnratedTasks(storedEmpId);
       } else {
         console.warn('⚠️ No employeeId found in URL or localStorage!');
       }
@@ -292,6 +292,7 @@ export class TaskFormComponent implements OnInit {
     this.confirmCallback = null;
   }
 }
+
 
 
 
