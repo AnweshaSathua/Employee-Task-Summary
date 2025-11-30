@@ -80,15 +80,13 @@ export class TaskFormComponent implements OnInit {
         storedEmpId = localStorage.getItem('employeeId');
       }
 
-      if (empIdFromUrl) {
-        this.employeeId = empIdFromUrl;
-
-        if (this.isBrowser) {
-          localStorage.setItem('employeeId', empIdFromUrl);
-        }
-
-        this.loadEmployeeDetails(empIdFromUrl);
-        this.loadUnratedTasks(empIdFromUrl as string);
+     const safeEmpId: string = empIdFromUrl!;
+     this.employeeId = safeEmpId;
+     if (this.isBrowser) {
+     localStorage.setItem('employeeId', safeEmpId);
+      }
+     this.loadEmployeeDetails(safeEmpId);
+     this.loadUnratedTasks(safeEmpId);
       } else if (storedEmpId) {
         this.employeeId = storedEmpId;
         this.loadEmployeeDetails(storedEmpId);
@@ -294,5 +292,6 @@ export class TaskFormComponent implements OnInit {
     this.confirmCallback = null;
   }
 }
+
 
 
