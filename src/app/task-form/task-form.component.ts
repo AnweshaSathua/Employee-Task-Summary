@@ -88,7 +88,7 @@ export class TaskFormComponent implements OnInit {
         }
 
         this.loadEmployeeDetails(empIdFromUrl);
-        this.loadUnratedTasks(empIdFromUrl);
+        this.loadUnratedTasks(empIdFromUrl as string);
       } else if (storedEmpId) {
         this.employeeId = storedEmpId;
         this.loadEmployeeDetails(storedEmpId);
@@ -294,4 +294,5 @@ export class TaskFormComponent implements OnInit {
     this.confirmCallback = null;
   }
 }
+
 
