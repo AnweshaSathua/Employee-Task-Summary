@@ -45,7 +45,13 @@ export class TaskFormComponent implements OnInit {
     "Vankara Pavan Sai Kishore Naidu",
     "Abhishek Thakur",
     "Srinivasan T",
-    "Senthil Selvaraj"
+    "Senthil Selvaraj",
+    "Abhisheik V",
+    "Mandhakalla Usha",
+    "Manoranjan Nayak",
+    "Shabaz Pasha",
+    "Surya Prakash Das",
+    "Yash Dipt",
   ];
 
   alertMessage: string = '';
@@ -292,6 +298,7 @@ export class TaskFormComponent implements OnInit {
     this.confirmCallback = null;
   }
 }
+
 
 
 
