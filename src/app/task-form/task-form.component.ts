@@ -237,43 +237,77 @@ export class TaskFormComponent implements OnInit {
     return;
   }
 
-    const taskId = this.selectedTaskForEdit.tasks[0].taskId; // Use first task ID
-  if (!taskId) {
-    this.showCustomAlert('Missing taskId for editing!');
-    return;
-  }
+    const updatePromises: Promise<any>[] = [];
+  
+  this.selectedTaskForEdit.tasks.forEach((task: any) => {
+    if (!task.taskId) {
+      console.warn('Skipping task without taskId:', task);
+      return;
+    }
 
     const payload = {
-      tasks: this.selectedTaskForEdit.tasks.map((task: any) => ({
-        taskId: task.taskId,
+      // tasks: this.selectedTaskForEdit.tasks.map((task: any) => ({
+      //   taskId: task.taskId,
         description: task.description,
         status: task.status,
         hours: task.hours,
         extraHours: task.extraHours,
         prLink: task.prLink
-      }))
+      // }))
     };
-
+    
+    const promise =
     this.http.put<any>(
-     `https://192.168.0.22:8243/employee/api/v1/tasks/update/${taskId}`,
+     `https://192.168.0.22:8243/employee/api/v1/tasks/update/${task.taskId}`,
       payload,
       {
         headers: {
           Authorization: 'd44d4aeb-be2d-4dff-ba36-2526d7e19722'
         }
       }
-    ).subscribe({
+    ).toPromise();
+
+    updatePromises.push(promise);
+  });
+
+  if (updatePromises.length === 0) {
+    this.showCustomAlert('No valid tasks to update!');
+    return;
+  }
+
+  // Wait for ALL updates to complete, then refresh data
+  Promise.all(updatePromises)
+    .then(() => {
+      this.showCustomAlert(`${updatePromises.length} task(s) updated successfully!`);
+      this.closeEditPopup();
+      // Force refresh with cache-busting parameter
+      this.refreshUnratedTasks();
+    })
+    .catch((err) => {
+      console.error('❌ Error updating tasks:', err);
+      this.showCustomAlert('Error updating some tasks!');
+      // Still refresh to show current state
+      this.refreshUnratedTasks();
+    });
+}
+
+// Add this new method to force refresh unrated tasks with cache busting
+private refreshUnratedTasks(): void {
+  if (!this.employeeId) return;
+  
+  const cacheBuster = new Date().getTime();
+  this.http.get<any>(`https://192.168.0.22:8243/employee/api/v1/tasks/withoutrating/${this.employeeId}?_t=${cacheBuster}`)
+    .subscribe({
       next: (res) => {
-        this.showCustomAlert('Tasks updated successfully!');
-        this.closeEditPopup();
-        this.loadCurrentMonthUnratedTasks(this.employeeId!);
+        this.unratedTasks = res.tasks || [];
+        this.currentMonthTasks = this.groupTasksByDate(this.unratedTasks);
+        console.log('📅 Refreshed unrated tasks:', this.currentMonthTasks);
       },
       error: (err) => {
-        console.error('❌ Error updating tasks:', err);
-        this.showCustomAlert('Error updating tasks!');
+        console.error('Error refreshing unrated tasks:', err);
       }
     });
-  }
+}
 
   editTask(index: number): void {
     const control = this.tasks.at(index);
@@ -301,7 +335,7 @@ export class TaskFormComponent implements OnInit {
     ).subscribe({
       next: (res) => {
         this.showCustomAlert('Task updated successfully!');
-        this.loadCurrentMonthUnratedTasks(this.employeeId);
+        this.refreshUnratedTasks();
       },
       error: (err) => {
         console.error('❌ Error updating task:', err);
@@ -341,7 +375,7 @@ export class TaskFormComponent implements OnInit {
         this.taskForm.reset();
         this.taskForm.setControl('tasks', this.fb.array([this.createTask(true)]));
         this.expandedTaskIndex = 0;
-        this.loadCurrentMonthUnratedTasks(this.employeeId);
+        this.refreshUnratedTasks();
       },
       error: (err) => {
         console.error('❌ Error saving task:', err);
@@ -386,6 +420,7 @@ export class TaskFormComponent implements OnInit {
     this.confirmCallback = null;
   }
 }
+
 
 
 
