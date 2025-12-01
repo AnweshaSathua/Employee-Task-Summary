@@ -232,10 +232,16 @@ export class TaskFormComponent implements OnInit {
   // }
 
   submitEditedTasks(): void {
-    if (!this.selectedTaskForEdit || !this.employeeId) {
-      this.showCustomAlert('No tasks selected for editing!');
-      return;
-    }
+  if (!this.selectedTaskForEdit || !this.employeeId || !this.selectedTaskForEdit.tasks.length) {
+    this.showCustomAlert('No tasks selected for editing!');
+    return;
+  }
+
+    const taskId = this.selectedTaskForEdit.tasks[0].taskId; // Use first task ID
+  if (!taskId) {
+    this.showCustomAlert('Missing taskId for editing!');
+    return;
+  }
 
     const payload = {
       tasks: this.selectedTaskForEdit.tasks.map((task: any) => ({
@@ -249,7 +255,7 @@ export class TaskFormComponent implements OnInit {
     };
 
     this.http.put<any>(
-      `https://192.168.0.22:8243/employee/api/v1/tasks/update/${this.selectedTaskForEdit?.tasks[0]?.taskId}`,
+     `https://192.168.0.22:8243/employee/api/v1/tasks/update/${taskId}`,
       payload,
       {
         headers: {
@@ -271,11 +277,11 @@ export class TaskFormComponent implements OnInit {
 
   editTask(index: number): void {
     const control = this.tasks.at(index);
-    const value = control.value;
-    if (!value.taskId) {
-      this.showCustomAlert('Cannot edit a task without taskId!');
-      return;
-    }
+    const taskId = control.value.taskId;
+    if (!taskId) {
+    this.showCustomAlert('Cannot edit a task without taskId!');
+    return;
+  }
     const payload = {
       description: value.description,
       status: value.status,
@@ -380,6 +386,7 @@ export class TaskFormComponent implements OnInit {
     this.confirmCallback = null;
   }
 }
+
 
 
 
