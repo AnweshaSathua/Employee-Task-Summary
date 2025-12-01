@@ -171,7 +171,7 @@ export class TaskFormComponent implements OnInit {
     const currentDate = new Date();
     const yearMonth = currentDate.toISOString().slice(0, 7); 
     
-    this.http.get<any>(`https://192.168.0.22:8243/employee/api/v1/tasks/currentmonth/unrated/${employeeId}/${yearMonth}`)
+    this.http.get<any>(`https://192.168.0.22:8243/employee/api/v1/tasks/withoutrating/${employeeId}`)
       .subscribe({
         next: (res) => {
           this.unratedTasks = res.tasks || [];
@@ -249,7 +249,7 @@ export class TaskFormComponent implements OnInit {
     };
 
     this.http.put<any>(
-      `https://192.168.0.22:8243/employee/api/v1/tasks/bulkupdate/${this.employeeId}`,
+      `https://192.168.0.22:8243/employee/api/v1/tasks/update/${taskId}`,
       payload,
       {
         headers: {
@@ -285,7 +285,7 @@ export class TaskFormComponent implements OnInit {
     };
 
     this.http.put<any>(
-      `https://192.168.0.22:8243/employee/api/v1/tasks/update/${value.taskId}`,
+      `https://192.168.0.22:8243/employee/api/v1/tasks/update/${taskId}`,
       payload,
       {
         headers: {
@@ -380,6 +380,7 @@ export class TaskFormComponent implements OnInit {
     this.confirmCallback = null;
   }
 }
+
 
 
 
