@@ -16,7 +16,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 20px;
+  padding-top: 0px;
+  padding-bottom: 5px
 }
 
 /* ======================
@@ -193,6 +194,7 @@ button {
     width: 100%;
   }
 }
+
 
 
 
