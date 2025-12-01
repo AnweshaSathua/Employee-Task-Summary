@@ -168,8 +168,8 @@ export class TaskFormComponent implements OnInit {
   }
 
   loadCurrentMonthUnratedTasks(employeeId: string): void {
-    const currentDate = new Date();
-    const yearMonth = currentDate.toISOString().slice(0, 7); 
+    // const currentDate = new Date();
+    // const yearMonth = currentDate.toISOString().slice(0, 7); 
     
     this.http.get<any>(`https://192.168.0.22:8243/employee/api/v1/tasks/withoutrating/${employeeId}`)
       .subscribe({
@@ -191,7 +191,15 @@ export class TaskFormComponent implements OnInit {
       if (!grouped[dateKey]) {
         grouped[dateKey] = [];
       }
-      grouped[dateKey].push(task);
+      grouped[dateKey].push({
+        ...task,
+        taskName: task.taskName || '',
+        description: task.description || '',
+        status: task.status || '',
+        hours: task.hours || '',
+        extraHours: task.extraHours || '',
+        prLink: task.prLink || ''
+      });
     });
     return grouped;
   }
@@ -217,6 +225,7 @@ export class TaskFormComponent implements OnInit {
       date: dateKey,
       tasks: [...this.currentMonthTasks[dateKey]] 
     };
+    console.log('📋 Selected tasks for edit:', this.selectedTaskForEdit);
     this.showEditPopup = true;
   }
 
@@ -225,12 +234,13 @@ export class TaskFormComponent implements OnInit {
     this.selectedTaskForEdit = null;
   }
 
-  // updateTaskInPopup(taskIndex: number, field: string, value: any): void {
-  //   if (this.selectedTaskForEdit?.tasks[taskIndex]) {
-  //     this.selectedTaskForEdit.tasks[taskIndex][field] = value;
-  //   }
-  // }
-
+  updateTaskInPopup(taskIndex: number, field: string, value: string): void {
+    if (this.selectedTaskForEdit?.tasks[taskIndex]) {
+      this.selectedTaskForEdit.tasks[taskIndex][field] = value;
+      console.log(`✅ Updated task ${taskIndex} ${field}: "${value}"`);
+    }
+  }
+  
   submitEditedTasks(): void {
   if (!this.selectedTaskForEdit || !this.employeeId || !this.selectedTaskForEdit.tasks.length) {
     this.showCustomAlert('No tasks selected for editing!');
@@ -243,9 +253,17 @@ export class TaskFormComponent implements OnInit {
     return;
   }
 
+     console.log('📤 Submitting edited tasks:', JSON.stringify(this.selectedTaskForEdit.tasks, null, 2));
+
+    
+    this.selectedTaskForEdit.tasks.forEach((task: any, index: number) => {
+      if (!task.taskId) {
+        console.warn(`⚠️ Skipping task ${index} - missing taskId`);
+        return;
+      }
+
+
     const payload = {
-      tasks: this.selectedTaskForEdit.tasks.map((task: any) => ({
-        taskId: task.taskId,
         description: task.description,
         status: task.status,
         hours: task.hours,
@@ -386,6 +404,7 @@ export class TaskFormComponent implements OnInit {
     this.confirmCallback = null;
   }
 }
+
 
 
 
