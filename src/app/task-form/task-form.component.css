@@ -1,4 +1,12 @@
 /* Fixed Header */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden; /* Prevents any page-level scrolling */
+  box-sizing: border-box;
+}
+
 .app-header {
   width: 100%;
   display: flex;
@@ -653,6 +661,7 @@ button:hover {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
 }
+
 
 
 
