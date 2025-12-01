@@ -201,7 +201,10 @@
         <div class="form-row">
           <div class="form-group full-width">
             <label>📝 Task Name <span class="readonly-label">(Read-only)</span></label>
-            <input type="text" [(ngModel)]="selectedTaskForEdit.tasks[i].taskName" />
+             <input type="text" 
+                   [value]="selectedTaskForEdit.tasks[i].taskName || ''"
+                   readonly 
+                   class="readonly-input" />
           </div>
         </div>
 
@@ -269,6 +272,7 @@
     </div>
   </div>
 </div>
+
 
 
 
