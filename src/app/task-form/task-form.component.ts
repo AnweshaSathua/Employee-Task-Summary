@@ -96,7 +96,7 @@ export class TaskFormComponent implements OnInit {
       localStorage.setItem('employeeId', empIdFromUrl);
       }
       this.loadEmployeeDetails(empIdFromUrl);
-      this.loadUnratedTasks(empIdFromUrl as string); 
+      this.loadCurrentMonthUnratedTasks(empIdFromUrl as string);
       } else if (storedEmpId) {
         this.employeeId = storedEmpId;
         this.loadEmployeeDetails(storedEmpId);
@@ -196,6 +196,22 @@ export class TaskFormComponent implements OnInit {
     return grouped;
   }
 
+  getSortedDates(): string[] {
+    return Object.keys(this.currentMonthTasks).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+  }
+
+  formatDate(dateKey: string): string {
+    return new Date(dateKey).toLocaleDateString('en-US', { 
+      weekday: 'short', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  }
+
+  hasCurrentMonthTasks(): boolean {
+    return Object.keys(this.currentMonthTasks).length > 0;
+  }
+
   onDateClick(dateKey: string): void {
     this.selectedTaskForEdit = {
       date: dateKey,
@@ -209,11 +225,11 @@ export class TaskFormComponent implements OnInit {
     this.selectedTaskForEdit = null;
   }
 
-  updateTaskInPopup(taskIndex: number, field: string, value: any): void {
-    if (this.selectedTaskForEdit?.tasks[taskIndex]) {
-      this.selectedTaskForEdit.tasks[taskIndex][field] = value;
-    }
-  }
+  // updateTaskInPopup(taskIndex: number, field: string, value: any): void {
+  //   if (this.selectedTaskForEdit?.tasks[taskIndex]) {
+  //     this.selectedTaskForEdit.tasks[taskIndex][field] = value;
+  //   }
+  // }
 
   submitEditedTasks(): void {
     if (!this.selectedTaskForEdit || !this.employeeId) {
@@ -364,6 +380,7 @@ export class TaskFormComponent implements OnInit {
     this.confirmCallback = null;
   }
 }
+
 
 
 
