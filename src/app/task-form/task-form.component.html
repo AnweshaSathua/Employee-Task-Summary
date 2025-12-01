@@ -186,6 +186,66 @@
   </main>
 </div>
 
+<!-- Edit Popup Modal -->
+<div *ngIf="showEditPopup" class="edit-popup-overlay">
+  <div class="edit-popup">
+    <div class="popup-header">
+      <h3>✏️ Edit Tasks - {{ selectedTaskForEdit?.date | date:'MMM dd, yyyy' }}</h3>
+      <button class="close-btn" (click)="closeEditPopup()">×</button>
+    </div>
+    
+    <div class="popup-content">
+      <div *ngFor="let task of selectedTaskForEdit?.tasks; let i = index" class="edit-task-item">
+        <h4>Task {{ i + 1 }}</h4>
+        
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>📝 Task Name <span class="readonly-label">(Read-only)</span></label>
+            <input type="text" [(ngModel)]="selectedTaskForEdit.tasks[i].taskName" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>📖 Description</label>
+            <textarea [(ngModel)]="selectedTaskForEdit.tasks[i].description" 
+                      class="description-box"></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>🚩 Status</label>
+            <select [(ngModel)]="selectedTaskForEdit.tasks[i].status">
+              <option value="Complete">Complete ✅</option>
+              <option value="InComplete">Incomplete ❌</option>
+              <option value="Partial">Partial ⏳</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>⏰ Hours</label>
+            <input type="time" [(ngModel)]="selectedTaskForEdit.tasks[i].hours" />
+          </div>
+          <div class="form-group">
+            <label>➕ Extra Hours</label>
+            <input type="time" [(ngModel)]="selectedTaskForEdit.tasks[i].extraHours" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>🔗 PR Link</label>
+            <input type="url" [(ngModel)]="selectedTaskForEdit.tasks[i].prLink" />
+            <small *ngIf="selectedTaskForEdit.tasks[i].prLink">
+              ✅ <a [href]="selectedTaskForEdit.tasks[i].prLink" target="_blank">View PR</a>
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="popup-actions">
+      <button class="btn btn-secondary" (click)="closeEditPopup()">Cancel</button>
       <button class="btn btn-primary" (click)="submitEditedTasks()">💾 Update Tasks</button>
     </div>
   </div>
@@ -209,8 +269,6 @@
     </div>
   </div>
 </div>
-
-
 
 
 
