@@ -249,7 +249,7 @@ export class TaskFormComponent implements OnInit {
     };
 
     this.http.put<any>(
-      `https://192.168.0.22:8243/employee/api/v1/tasks/update/${taskId}`,
+      `https://192.168.0.22:8243/employee/api/v1/tasks/update/${this.selectedTaskForEdit?.tasks[0]?.taskId}`,
       payload,
       {
         headers: {
