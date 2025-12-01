@@ -6,6 +6,33 @@
 </header>
 
 
+<div class="main-container">
+ 
+  <aside class="task-sidebar">
+    <div class="sidebar-header">
+      <h3>📅 Unrated Tasks</h3>
+      <p>This Month</p>
+    </div>
+    
+    <div class="sidebar-content">
+      <div *ngFor="let dateKey of getSortedDates(); let i = index" 
+           class="date-item" 
+           (click)="onDateClick(dateKey)"
+           [class.active]="selectedTaskForEdit?.date === dateKey">
+        <div class="date-header">
+          <span class="date">{{ formatDate(dateKey) }}</span>
+          <span class="task-count">{{ currentMonthTasks[dateKey].length }} tasks</span>
+        </div>
+      </div>
+      
+      <div *ngIf="Object.keys(currentMonthTasks).length === 0" class="no-tasks">
+        ✅ No unrated tasks this month!
+      </div>
+    </div>
+  </aside>
+
+  
+  <main class="main-content">
 
 <!-- Employee Details Section -->
 <div class="employee-card">
@@ -147,10 +174,9 @@
             ➕ Edit
           </button>
         </div>
-      </div> <!-- ✅ closes collapsible-form -->
-    </div>   <!-- ✅ closes task-block -->
-  </div>     <!-- ✅ closes formArrayName="tasks" -->
-
+      </div> 
+    </div>   
+  </div>     
   <!-- Actions -->
   <div class="form-actions">
     <button type="button" class="btn btn-secondary" (click)="addTask()">➕ Add More Task</button>
@@ -158,7 +184,77 @@
     <button type="button" class="btn btn-exit" (click)="onExit()">🚪 Exit</button>
   </div>
 
-  <!-- 🔹 Custom Alert Modal -->
+</form>
+    </div>
+  </main>
+</div>
+
+<!-- Edit Popup Modal -->
+<div *ngIf="showEditPopup" class="edit-popup-overlay">
+  <div class="edit-popup">
+    <div class="popup-header">
+      <h3>✏️ Edit Tasks - {{ selectedTaskForEdit?.date | date:'MMM dd, yyyy' }}</h3>
+      <button class="close-btn" (click)="closeEditPopup()">×</button>
+    </div>
+    
+    <div class="popup-content">
+      <div *ngFor="let task of selectedTaskForEdit?.tasks; let i = index" class="edit-task-item">
+        <h4>Task {{ i + 1 }}</h4>
+        
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>📝 Task Name</label>
+            <input type="text" [(ngModel)]="selectedTaskForEdit.tasks[i].taskName" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>📖 Description</label>
+            <textarea [(ngModel)]="selectedTaskForEdit.tasks[i].description" 
+                      class="description-box"></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>🚩 Status</label>
+            <select [(ngModel)]="selectedTaskForEdit.tasks[i].status">
+              <option value="Complete">Complete ✅</option>
+              <option value="InComplete">Incomplete ❌</option>
+              <option value="Partial">Partial ⏳</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>⏰ Hours</label>
+            <input type="time" [(ngModel)]="selectedTaskForEdit.tasks[i].hours" />
+          </div>
+          <div class="form-group">
+            <label>➕ Extra Hours</label>
+            <input type="time" [(ngModel)]="selectedTaskForEdit.tasks[i].extraHours" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>🔗 PR Link</label>
+            <input type="url" [(ngModel)]="selectedTaskForEdit.tasks[i].prLink" />
+            <small *ngIf="selectedTaskForEdit.tasks[i].prLink">
+              ✅ <a [href]="selectedTaskForEdit.tasks[i].prLink" target="_blank">View PR</a>
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="popup-actions">
+      <button class="btn btn-secondary" (click)="closeEditPopup()">Cancel</button>
+      <button class="btn btn-primary" (click)="submitEditedTasks()">💾 Update Tasks</button>
+    </div>
+  </div>
+</div>
+
+<!-- 🔹 Custom Alert Modal -->
 <div *ngIf="showAlert" class="custom-alert-overlay">
   <div class="custom-alert-box">
     <p>{{ alertMessage }}</p>
@@ -177,8 +273,6 @@
   </div>
 </div>
 
-
-</form>
 
 
 
