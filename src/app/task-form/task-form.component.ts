@@ -225,11 +225,11 @@ export class TaskFormComponent implements OnInit {
     this.selectedTaskForEdit = null;
   }
 
-  // updateTaskInPopup(taskIndex: number, field: string, value: any): void {
-  //   if (this.selectedTaskForEdit?.tasks[taskIndex]) {
-  //     this.selectedTaskForEdit.tasks[taskIndex][field] = value;
-  //   }
-  // }
+  updateTaskInPopup(taskIndex: number, field: string, value: any): void {
+    if (this.selectedTaskForEdit?.tasks[taskIndex]) {
+      this.selectedTaskForEdit.tasks[taskIndex][field] = value;
+    }
+  }
 
   submitEditedTasks(): void {
   if (!this.selectedTaskForEdit || !this.employeeId || !this.selectedTaskForEdit.tasks.length) {
@@ -386,5 +386,6 @@ export class TaskFormComponent implements OnInit {
     this.confirmCallback = null;
   }
 }
+
 
 
