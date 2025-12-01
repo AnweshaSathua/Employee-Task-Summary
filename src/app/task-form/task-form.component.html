@@ -201,14 +201,17 @@
         <div class="form-row">
           <div class="form-group full-width">
             <label>📝 Task Name</label>
-            <input type="text" [(ngModel)]="selectedTaskForEdit.tasks[i].taskName" />
+           <input type="text" 
+                   [value]="selectedTaskForEdit.tasks[i].taskName || ''"
+                   (input)="updateTaskInPopup(i, 'taskName', $event.target.value)" />
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group full-width">
             <label>📖 Description</label>
-            <textarea [(ngModel)]="selectedTaskForEdit.tasks[i].description" 
+            <textarea [value]="selectedTaskForEdit.tasks[i].description || ''"
+                      (input)="updateTaskInPopup(i, 'description', $event.target.value)"
                       class="description-box"></textarea>
           </div>
         </div>
@@ -216,7 +219,8 @@
         <div class="form-row">
           <div class="form-group">
             <label>🚩 Status</label>
-            <select [(ngModel)]="selectedTaskForEdit.tasks[i].status">
+            <select [value]="selectedTaskForEdit.tasks[i].status || ''"
+                    (change)="updateTaskInPopup(i, 'status', $event.target.value)">
               <option value="Complete">Complete ✅</option>
               <option value="InComplete">Incomplete ❌</option>
               <option value="Partial">Partial ⏳</option>
@@ -224,21 +228,24 @@
           </div>
           <div class="form-group">
             <label>⏰ Hours</label>
-            <input type="time" [(ngModel)]="selectedTaskForEdit.tasks[i].hours" />
+           <input type="time" 
+                   [value]="selectedTaskForEdit.tasks[i].hours || ''"
+                   (input)="updateTaskInPopup(i, 'hours', $event.target.value)" />
           </div>
           <div class="form-group">
             <label>➕ Extra Hours</label>
-            <input type="time" [(ngModel)]="selectedTaskForEdit.tasks[i].extraHours" />
+           <input type="time" 
+                   [value]="selectedTaskForEdit.tasks[i].extraHours || ''"
+                   (input)="updateTaskInPopup(i, 'extraHours', $event.target.value)" />
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label>🔗 PR Link</label>
-            <input type="url" [(ngModel)]="selectedTaskForEdit.tasks[i].prLink" />
-            <small *ngIf="selectedTaskForEdit.tasks[i].prLink">
-              ✅ <a [href]="selectedTaskForEdit.tasks[i].prLink" target="_blank">View PR</a>
-            </small>
+            <input type="url" 
+                   [value]="selectedTaskForEdit.tasks[i].prLink || ''"
+                   (input)="updateTaskInPopup(i, 'prLink', $event.target.value)" />
           </div>
         </div>
       </div>
@@ -269,6 +276,7 @@
     </div>
   </div>
 </div>
+
 
 
 
