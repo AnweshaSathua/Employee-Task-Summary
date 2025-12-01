@@ -17,6 +17,10 @@ export class TaskFormComponent implements OnInit {
   employeeId: string = '';
 
   expandedTaskIndex: number | null = 0;
+  unratedTasks: any[] = [];
+  currentMonthTasks: { [date: string]: any[] } = {};
+  selectedTaskForEdit: any = null;
+  showEditPopup: boolean = false;
 
   projects: string[] = [
     "Account, Card, Deposit, customer Onboarding",
@@ -96,7 +100,7 @@ export class TaskFormComponent implements OnInit {
       } else if (storedEmpId) {
         this.employeeId = storedEmpId;
         this.loadEmployeeDetails(storedEmpId);
-        this.loadUnratedTasks(storedEmpId);
+       this.loadCurrentMonthUnratedTasks(storedEmpId);
       } else {
         console.warn('⚠️ No employeeId found in URL or localStorage!');
       }
@@ -163,28 +167,90 @@ export class TaskFormComponent implements OnInit {
       });
   }
 
-  loadUnratedTasks(employeeId: string): void {
-    this.http.get<any>(`https://192.168.0.22:8243/employee/api/v1/tasks/withoutrating/${employeeId}`)
+  loadCurrentMonthUnratedTasks(employeeId: string): void {
+    const currentDate = new Date();
+    const yearMonth = currentDate.toISOString().slice(0, 7); 
+    
+    this.http.get<any>(`https://192.168.0.22:8243/employee/api/v1/tasks/currentmonth/unrated/${employeeId}/${yearMonth}`)
       .subscribe({
         next: (res) => {
-          this.tasks.clear();
-          res.tasks.forEach((task: any, idx: number) => {
-            const formGroup = this.createTask(idx === 0);
-            formGroup.patchValue({
-              taskId: task.taskId,
-              taskTitle: task.taskName,
-              date: task.workDate
-            });
-            this.tasks.push(formGroup);
-          });
-          if (this.tasks.length === 0) {
-            this.tasks.push(this.createTask(true));
-          }
+          this.unratedTasks = res.tasks || [];
+          this.currentMonthTasks = this.groupTasksByDate(this.unratedTasks);
+          console.log('📅 Current month unrated tasks:', this.currentMonthTasks);
         },
         error: (err) => {
-          console.error('Error fetching unrated tasks:', err);
+          console.error('Error fetching current month unrated tasks:', err);
         }
       });
+  }
+
+  groupTasksByDate(tasks: any[]): { [date: string]: any[] } {
+    const grouped: { [date: string]: any[] } = {};
+    tasks.forEach(task => {
+      const dateKey = new Date(task.workDate).toLocaleDateString('en-CA'); 
+      if (!grouped[dateKey]) {
+        grouped[dateKey] = [];
+      }
+      grouped[dateKey].push(task);
+    });
+    return grouped;
+  }
+
+  onDateClick(dateKey: string): void {
+    this.selectedTaskForEdit = {
+      date: dateKey,
+      tasks: [...this.currentMonthTasks[dateKey]] 
+    };
+    this.showEditPopup = true;
+  }
+
+  closeEditPopup(): void {
+    this.showEditPopup = false;
+    this.selectedTaskForEdit = null;
+  }
+
+  updateTaskInPopup(taskIndex: number, field: string, value: any): void {
+    if (this.selectedTaskForEdit?.tasks[taskIndex]) {
+      this.selectedTaskForEdit.tasks[taskIndex][field] = value;
+    }
+  }
+
+  submitEditedTasks(): void {
+    if (!this.selectedTaskForEdit || !this.employeeId) {
+      this.showCustomAlert('No tasks selected for editing!');
+      return;
+    }
+
+    const payload = {
+      tasks: this.selectedTaskForEdit.tasks.map((task: any) => ({
+        taskId: task.taskId,
+        description: task.description,
+        status: task.status,
+        hours: task.hours,
+        extraHours: task.extraHours,
+        prLink: task.prLink
+      }))
+    };
+
+    this.http.put<any>(
+      `https://192.168.0.22:8243/employee/api/v1/tasks/bulkupdate/${this.employeeId}`,
+      payload,
+      {
+        headers: {
+          Authorization: 'd44d4aeb-be2d-4dff-ba36-2526d7e19722'
+        }
+      }
+    ).subscribe({
+      next: (res) => {
+        this.showCustomAlert('Tasks updated successfully!');
+        this.closeEditPopup();
+        this.loadCurrentMonthUnratedTasks(this.employeeId);
+      },
+      error: (err) => {
+        console.error('❌ Error updating tasks:', err);
+        this.showCustomAlert('Error updating tasks!');
+      }
+    });
   }
 
   editTask(index: number): void {
@@ -213,7 +279,7 @@ export class TaskFormComponent implements OnInit {
     ).subscribe({
       next: (res) => {
         this.showCustomAlert('Task updated successfully!');
-        this.loadUnratedTasks(this.employeeId);
+        this.loadCurrentMonthUnratedTasks(this.employeeId);
       },
       error: (err) => {
         console.error('❌ Error updating task:', err);
@@ -253,7 +319,7 @@ export class TaskFormComponent implements OnInit {
         this.taskForm.reset();
         this.taskForm.setControl('tasks', this.fb.array([this.createTask(true)]));
         this.expandedTaskIndex = 0;
-        this.loadUnratedTasks(this.employeeId);
+        this.loadCurrentMonthUnratedTasks(this.employeeId);
       },
       error: (err) => {
         console.error('❌ Error saving task:', err);
@@ -298,6 +364,7 @@ export class TaskFormComponent implements OnInit {
     this.confirmCallback = null;
   }
 }
+
 
 
 
