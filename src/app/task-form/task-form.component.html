@@ -25,7 +25,7 @@
         </div>
       </div>
       
-      <div *ngIf="Object.keys(currentMonthTasks).length === 0" class="no-tasks">
+      <div *ngIf="!hasCurrentMonthTasks()" class="no-tasks">
         ✅ No unrated tasks this month!
       </div>
     </div>
@@ -170,9 +170,6 @@
           <button type="button" class="btn btn-danger" (click)="removeTask(i)" *ngIf="tasks.length > 1">
             ❌ Remove
           </button>
-          <button type="button" class="btn btn-danger" (click)="editTask(i)" *ngIf="tasks.length > 1">
-            ➕ Edit
-          </button>
         </div>
       </div> 
     </div>   
@@ -272,6 +269,7 @@
     </div>
   </div>
 </div>
+
 
 
 
