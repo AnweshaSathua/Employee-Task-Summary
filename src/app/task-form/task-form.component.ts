@@ -266,7 +266,7 @@ export class TaskFormComponent implements OnInit {
       next: (res) => {
         this.showCustomAlert('Tasks updated successfully!');
         this.closeEditPopup();
-        this.loadCurrentMonthUnratedTasks(this.employeeId);
+        this.loadCurrentMonthUnratedTasks(this.employeeId!);
       },
       error: (err) => {
         console.error('❌ Error updating tasks:', err);
@@ -283,11 +283,11 @@ export class TaskFormComponent implements OnInit {
     return;
   }
     const payload = {
-      description: value.description,
-      status: value.status,
-      hours: value.hours,
-      extraHours: value.extraHours,
-      prLink: value.prLink
+      description: control.value.description,
+      status: control.value.status,
+      hours: control.value.hours,
+      extraHours: control.value.extraHours,
+      prLink: control.value.prLink
     };
 
     this.http.put<any>(
@@ -386,6 +386,7 @@ export class TaskFormComponent implements OnInit {
     this.confirmCallback = null;
   }
 }
+
 
 
 
