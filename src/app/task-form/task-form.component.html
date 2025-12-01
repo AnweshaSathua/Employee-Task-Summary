@@ -186,73 +186,6 @@
   </main>
 </div>
 
-<!-- Edit Popup Modal -->
-<div *ngIf="showEditPopup" class="edit-popup-overlay">
-  <div class="edit-popup">
-    <div class="popup-header">
-      <h3>✏️ Edit Tasks - {{ selectedTaskForEdit?.date | date:'MMM dd, yyyy' }}</h3>
-      <button class="close-btn" (click)="closeEditPopup()">×</button>
-    </div>
-    
-    <div class="popup-content">
-      <div *ngFor="let task of selectedTaskForEdit?.tasks; let i = index" class="edit-task-item">
-        <h4>Task {{ i + 1 }}</h4>
-        
-        <div class="form-row">
-          <div class="form-group full-width">
-            <label>📝 Task Name</label>
-           <input type="text" 
-                   [value]="selectedTaskForEdit.tasks[i].taskName || ''"
-                   (input)="updateTaskInPopup(i, 'taskName', $event.target.value)" />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group full-width">
-            <label>📖 Description</label>
-            <textarea [value]="selectedTaskForEdit.tasks[i].description || ''"
-                      (input)="updateTaskInPopup(i, 'description', $event.target.value)"
-                      class="description-box"></textarea>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>🚩 Status</label>
-            <select [value]="selectedTaskForEdit.tasks[i].status || ''"
-                    (change)="updateTaskInPopup(i, 'status', $event.target.value)">
-              <option value="Complete">Complete ✅</option>
-              <option value="InComplete">Incomplete ❌</option>
-              <option value="Partial">Partial ⏳</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>⏰ Hours</label>
-           <input type="time" 
-                   [value]="selectedTaskForEdit.tasks[i].hours || ''"
-                   (input)="updateTaskInPopup(i, 'hours', $event.target.value)" />
-          </div>
-          <div class="form-group">
-            <label>➕ Extra Hours</label>
-           <input type="time" 
-                   [value]="selectedTaskForEdit.tasks[i].extraHours || ''"
-                   (input)="updateTaskInPopup(i, 'extraHours', $event.target.value)" />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>🔗 PR Link</label>
-            <input type="url" 
-                   [value]="selectedTaskForEdit.tasks[i].prLink || ''"
-                   (input)="updateTaskInPopup(i, 'prLink', $event.target.value)" />
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="popup-actions">
-      <button class="btn btn-secondary" (click)="closeEditPopup()">Cancel</button>
       <button class="btn btn-primary" (click)="submitEditedTasks()">💾 Update Tasks</button>
     </div>
   </div>
@@ -276,6 +209,7 @@
     </div>
   </div>
 </div>
+
 
 
 
