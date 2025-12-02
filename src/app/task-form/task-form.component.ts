@@ -56,6 +56,9 @@ export class TaskFormComponent implements OnInit {
     "Shabaz Pasha",
     "Surya Prakash Das",
     "Yash Dipt",
+    "Calvin Clifford",
+    "Piyush Merchant",
+    "Alok Kumar Mohanty"
   ];
 
   alertMessage: string = '';
@@ -420,6 +423,7 @@ private refreshUnratedTasks(): void {
     this.confirmCallback = null;
   }
 }
+
 
 
 
