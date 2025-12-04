@@ -45,7 +45,6 @@ export class TaskFormComponent implements OnInit {
     "Gayathri Ramaraj",
     "Srihari",
     "Abhilash Kar",
-    "Kamarthi Siva Kumar",
     "Vankara Pavan Sai Kishore Naidu",
     "Abhishek Thakur",
     "Srinivasan T",
@@ -56,9 +55,9 @@ export class TaskFormComponent implements OnInit {
     "Shabaz Pasha",
     "Surya Prakash Das",
     "Yash Dipt",
-    "Calvin Clifford-Rating",
-    "Piyush Merchant-Rating",
-    "Alok Kumar Mohanty-Rating"
+    "Calvin_Clifford",
+    "Piyush_Merchant",
+    "Alok_Kumar_Mohanty"
   ];
 
   alertMessage: string = '';
@@ -423,6 +422,7 @@ private refreshUnratedTasks(): void {
     this.confirmCallback = null;
   }
 }
+
 
 
 
