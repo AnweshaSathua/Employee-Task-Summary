@@ -153,17 +153,7 @@
 
           <div class="form-group">
             <label>⏰ Hours *</label>
-            <input 
-        type="text" 
-        formControlName="hours" 
-        placeholder="08:30" 
-        maxlength="5"
-        (blur)="formatTimeOnBlur(i, 'hours')"
-        [class.is-invalid]="task.get('hours')?.invalid && task.get('hours')?.touched"
-      >
-            <div *ngIf="task.get('hours')?.errors?.['pattern']" class="error-text">
-        Use 24h format (e.g., 14:30)
-      </div>
+            <input type="time" formControlName="hours" />
           </div>
         </div>
 
@@ -171,14 +161,7 @@
         <div class="form-row">
           <div class="form-group">
             <label>➕ Extra Hours</label>
-            <input 
-        type="text" 
-        formControlName="extraHours" 
-        placeholder="02:00" 
-        maxlength="5"
-        (blur)="formatTimeOnBlur(i, 'extraHours')"
-        [class.is-invalid]="task.get('extraHours')?.invalid && task.get('extraHours')?.touched"
-      >
+            <input type="time" formControlName="extraHours" />
           </div>
         </div>
 
@@ -289,7 +272,6 @@
     </div>
   </div>
 </div>
-
 
 
 
