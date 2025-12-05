@@ -110,6 +110,7 @@ export class TaskFormComponent implements OnInit {
   }
 
   createTask(isFirst: boolean = false): FormGroup {
+    const timePattern = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
     return this.fb.group({
       taskId:[null],
       date: [isFirst ? '' : null, isFirst ? Validators.required : []],
@@ -120,8 +121,8 @@ export class TaskFormComponent implements OnInit {
       reference: [''],
       prLink: [''],
       status: ['', Validators.required],
-      hours: ['', Validators.required],
-      extraHours: [''],
+      hours: ['', [Validators.required, Validators.pattern(timePattern)]],
+      extraHours: ['', [Validators.pattern(timePattern)]],
       file: [null]
     });
   }
@@ -422,6 +423,7 @@ private refreshUnratedTasks(): void {
     this.confirmCallback = null;
   }
 }
+
 
 
 
