@@ -92,27 +92,43 @@ export class TaskFormComponent implements OnInit {
         storedEmpId = localStorage.getItem('employeeId');
       }
 
-     if (empIdFromUrl) {
-      this.employeeId = empIdFromUrl;
-      if (this.isBrowser) {
-      localStorage.setItem('employeeId', empIdFromUrl);
-      }
-      this.loadEmployeeDetails(empIdFromUrl);
-      this.loadCurrentMonthUnratedTasks(empIdFromUrl as string);
+      if (empIdFromUrl) {
+        this.employeeId = empIdFromUrl;
+        if (this.isBrowser) {
+          localStorage.setItem('employeeId', empIdFromUrl);
+        }
+        this.loadEmployeeDetails(empIdFromUrl);
+        this.loadCurrentMonthUnratedTasks(empIdFromUrl as string);
       } else if (storedEmpId) {
         this.employeeId = storedEmpId;
         this.loadEmployeeDetails(storedEmpId);
-       this.loadCurrentMonthUnratedTasks(storedEmpId);
+        this.loadCurrentMonthUnratedTasks(storedEmpId);
       } else {
         console.warn('⚠️ No employeeId found in URL or localStorage!');
       }
     });
   }
 
+  // Helper to force 24-hour format
+  formatToHHmm(time: any): string {
+    if (!time) return ''; 
+    
+    // Append a dummy date to parse the time string correctly
+    const date = new Date(`1970-01-01T${time}`);
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) return time; 
+
+    return date.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    });
+  }
+
   createTask(isFirst: boolean = false): FormGroup {
-    const timePattern = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
     return this.fb.group({
-      taskId:[null],
+      taskId: [null],
       date: [isFirst ? '' : null, isFirst ? Validators.required : []],
       project: ['', Validators.required],
       teamLead: ['', Validators.required],
@@ -169,12 +185,8 @@ export class TaskFormComponent implements OnInit {
         }
       });
   }
-  
 
   loadCurrentMonthUnratedTasks(employeeId: string): void {
-    const currentDate = new Date();
-    const yearMonth = currentDate.toISOString().slice(0, 7); 
-    
     this.http.get<any>(`https://192.168.0.22:8243/employee/api/v1/tasks/withoutrating/${employeeId}`)
       .subscribe({
         next: (res) => {
@@ -229,102 +241,92 @@ export class TaskFormComponent implements OnInit {
     this.selectedTaskForEdit = null;
   }
 
-  updateTaskInPopup(taskIndex: number, field: string, value: any): void {
-    if (this.selectedTaskForEdit?.tasks[taskIndex]) {
-      this.selectedTaskForEdit.tasks[taskIndex][field] = value;
-    }
-  }
-
   submitEditedTasks(): void {
-  if (!this.selectedTaskForEdit || !this.employeeId || !this.selectedTaskForEdit.tasks.length) {
-    this.showCustomAlert('No tasks selected for editing!');
-    return;
-  }
-
-    const updatePromises: Promise<any>[] = [];
-  
-  this.selectedTaskForEdit.tasks.forEach((task: any) => {
-    if (!task.taskId) {
-      console.warn('Skipping task without taskId:', task);
+    if (!this.selectedTaskForEdit || !this.employeeId || !this.selectedTaskForEdit.tasks.length) {
+      this.showCustomAlert('No tasks selected for editing!');
       return;
     }
 
-    const payload = {
-      // tasks: this.selectedTaskForEdit.tasks.map((task: any) => ({
-      //   taskId: task.taskId,
-        description: task.description,
-        status: task.status,
-        hours: task.hours,
-        extraHours: task.extraHours,
-        prLink: task.prLink
-      // }))
-    };
+    const updatePromises: Promise<any>[] = [];
     
-    const promise =
-    this.http.put<any>(
-     `https://192.168.0.22:8243/employee/api/v1/tasks/update/${task.taskId}`,
-      payload,
-      {
-        headers: {
-          Authorization: 'd44d4aeb-be2d-4dff-ba36-2526d7e19722'
-        }
+    this.selectedTaskForEdit.tasks.forEach((task: any) => {
+      if (!task.taskId) {
+        console.warn('Skipping task without taskId:', task);
+        return;
       }
-    ).toPromise();
 
-    updatePromises.push(promise);
-  });
+      // Format time here using your helper function
+      const payload = {
+          description: task.description,
+          status: task.status,
+          hours: this.formatToHHmm(task.hours),
+          extraHours: this.formatToHHmm(task.extraHours),
+          prLink: task.prLink
+      };
+      
+      const promise = this.http.put<any>(
+        `https://192.168.0.22:8243/employee/api/v1/tasks/update/${task.taskId}`,
+        payload,
+        {
+          headers: {
+            Authorization: 'd44d4aeb-be2d-4dff-ba36-2526d7e19722'
+          }
+        }
+      ).toPromise();
 
-  if (updatePromises.length === 0) {
-    this.showCustomAlert('No valid tasks to update!');
-    return;
+      updatePromises.push(promise);
+    });
+
+    if (updatePromises.length === 0) {
+      this.showCustomAlert('No valid tasks to update!');
+      return;
+    }
+
+    Promise.all(updatePromises)
+      .then(() => {
+        this.showCustomAlert(`${updatePromises.length} task(s) updated successfully!`);
+        this.closeEditPopup();
+        this.refreshUnratedTasks();
+      })
+      .catch((err) => {
+        console.error('❌ Error updating tasks:', err);
+        this.showCustomAlert('Error updating some tasks!');
+        this.refreshUnratedTasks();
+      });
   }
 
-  // Wait for ALL updates to complete, then refresh data
-  Promise.all(updatePromises)
-    .then(() => {
-      this.showCustomAlert(`${updatePromises.length} task(s) updated successfully!`);
-      this.closeEditPopup();
-      // Force refresh with cache-busting parameter
-      this.refreshUnratedTasks();
-    })
-    .catch((err) => {
-      console.error('❌ Error updating tasks:', err);
-      this.showCustomAlert('Error updating some tasks!');
-      // Still refresh to show current state
-      this.refreshUnratedTasks();
-    });
-}
-
-// Add this new method to force refresh unrated tasks with cache busting
-private refreshUnratedTasks(): void {
-  if (!this.employeeId) return;
-  
-  const cacheBuster = new Date().getTime();
-  this.http.get<any>(`https://192.168.0.22:8243/employee/api/v1/tasks/withoutrating/${this.employeeId}?_t=${cacheBuster}`)
-    .subscribe({
-      next: (res) => {
-        this.unratedTasks = res.tasks || [];
-        this.currentMonthTasks = this.groupTasksByDate(this.unratedTasks);
-        console.log('📅 Refreshed unrated tasks:', this.currentMonthTasks);
-      },
-      error: (err) => {
-        console.error('Error refreshing unrated tasks:', err);
-      }
-    });
-}
+  private refreshUnratedTasks(): void {
+    if (!this.employeeId) return;
+    
+    const cacheBuster = new Date().getTime();
+    this.http.get<any>(`https://192.168.0.22:8243/employee/api/v1/tasks/withoutrating/${this.employeeId}?_t=${cacheBuster}`)
+      .subscribe({
+        next: (res) => {
+          this.unratedTasks = res.tasks || [];
+          this.currentMonthTasks = this.groupTasksByDate(this.unratedTasks);
+          console.log('📅 Refreshed unrated tasks:', this.currentMonthTasks);
+        },
+        error: (err) => {
+          console.error('Error refreshing unrated tasks:', err);
+        }
+      });
+  }
 
   editTask(index: number): void {
     const control = this.tasks.at(index);
     const taskId = control.value.taskId;
+    
     if (!taskId) {
-    this.showCustomAlert('Cannot edit a task without taskId!');
-    return;
-  }
+      this.showCustomAlert('Cannot edit a task without taskId!');
+      return;
+    }
+
+    // Format time here using your helper function
     const payload = {
       description: control.value.description,
       status: control.value.status,
-      hours: control.value.hours,
-      extraHours: control.value.extraHours,
+      hours: this.formatToHHmm(control.value.hours),
+      extraHours: this.formatToHHmm(control.value.extraHours),
       prLink: control.value.prLink
     };
 
@@ -348,7 +350,6 @@ private refreshUnratedTasks(): void {
     });
   }
 
-
   saveTask(): void {
     if (this.taskForm.invalid) {
       this.showCustomAlert('Please fill all required fields!');
@@ -356,7 +357,15 @@ private refreshUnratedTasks(): void {
     }
 
     const formData = new FormData();
-    formData.append('tasks', JSON.stringify(this.taskForm.value.tasks));
+    
+    // Format tasks before saving using your helper function
+    const formattedTasks = this.taskForm.value.tasks.map((task: any) => ({
+      ...task,
+      hours: this.formatToHHmm(task.hours),
+      extraHours: this.formatToHHmm(task.extraHours)
+    }));
+
+    formData.append('tasks', JSON.stringify(formattedTasks));
 
     this.tasks.controls.forEach((control) => {
       const file = control.get('file')?.value;
@@ -424,13 +433,3 @@ private refreshUnratedTasks(): void {
     this.confirmCallback = null;
   }
 }
-
-
-
-
-
-
-
-
-
-
