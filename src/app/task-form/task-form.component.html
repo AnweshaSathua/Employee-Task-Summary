@@ -129,37 +129,25 @@
                     <option value="Partial">Partial ⏳</option>
                   </select>
                 </div>
-
                 <div class="form-group">
-                  <label>⏰ Hours * (HH:mm)</label>
+                  <label>⏰ Hours *</label>
                   <input 
-                    type="text" 
+                    type="time" 
                     formControlName="hours" 
-                    placeholder="08:30"
-                    maxlength="5"
-                    (blur)="formatTimeOnBlur(i, 'hours')"
                     [class.invalid-input]="task.get('hours')?.invalid && task.get('hours')?.touched"
                   />
-                  <div *ngIf="task.get('hours')?.hasError('pattern') && task.get('hours')?.touched" style="color: red; font-size: 0.8rem; margin-top: 2px;">
-                    Format: HH:mm (24h)
-                  </div>
                 </div>
               </div>
+                
 
               <div class="form-row">
                 <div class="form-group">
-                  <label>➕ Extra Hours (HH:mm)</label>
+                  <label>➕ Extra Hours</label>
                   <input 
-                    type="text" 
+                    type="time" 
                     formControlName="extraHours"
-                    placeholder="00:00"
-                    maxlength="5"
-                    (blur)="formatTimeOnBlur(i, 'extraHours')"
                     [class.invalid-input]="task.get('extraHours')?.invalid && task.get('extraHours')?.touched"
                   />
-                   <div *ngIf="task.get('extraHours')?.hasError('pattern') && task.get('extraHours')?.touched" style="color: red; font-size: 0.8rem; margin-top: 2px;">
-                    Format: HH:mm (24h)
-                  </div>
                 </div>
               </div>
 
@@ -217,36 +205,15 @@
             </select>
           </div>
 
-          <div class="form-group">
-            <label>⏰ Hours (HH:mm)</label>
-            <input 
-              type="text" 
-              [(ngModel)]="selectedTaskForEdit.tasks[i].hours" 
-              placeholder="08:30"
-              maxlength="5"
-              pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
-              #popHours="ngModel"
-            />
-            <div *ngIf="popHours.invalid && popHours.touched" style="color: red; font-size: 0.8rem;">
-               Invalid 24h format
-            </div>
+         <div class="form-group">
+            <label>⏰ Hours</label>
+            <input type="time" [(ngModel)]="selectedTaskForEdit.tasks[i].hours" />
           </div>
 
-          <div class="form-group">
-            <label>➕ Extra Hours (HH:mm)</label>
-            <input 
-              type="text" 
-              [(ngModel)]="selectedTaskForEdit.tasks[i].extraHours"
-              placeholder="00:00"
-              maxlength="5"
-              pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
-              #popExtra="ngModel"
-            />
-             <div *ngIf="popExtra.invalid && popExtra.touched" style="color: red; font-size: 0.8rem;">
-               Invalid 24h format
-            </div>
+         <div class="form-group">
+            <label>➕ Extra Hours</label>
+            <input type="time" [(ngModel)]="selectedTaskForEdit.tasks[i].extraHours" />
           </div>
-        </div>
 
         <div class="form-row">
           <div class="form-group">
@@ -283,3 +250,4 @@
     </div>
   </div>
 </div>
+
