@@ -1,19 +1,17 @@
-<!-- Header -->
 <header class="app-header">
   <div class="header-left">
     <img src="assets/image/logo.png" alt="Logo" class="logo" />
   </div>
 </header>
 
-
 <div class="main-container">
- 
+
   <aside class="task-sidebar">
     <div class="sidebar-header">
       <h3>📅 Unrated Tasks</h3>
       <p>This Month</p>
     </div>
-    
+
     <div class="sidebar-content">
       <div *ngFor="let dateKey of getSortedDates(); let i = index" 
            class="date-item" 
@@ -24,195 +22,188 @@
           <span class="task-count">{{ currentMonthTasks[dateKey].length }} tasks</span>
         </div>
       </div>
-      
+
       <div *ngIf="!hasCurrentMonthTasks()" class="no-tasks">
         ✅ No unrated tasks this month!
       </div>
     </div>
   </aside>
 
-  
+
   <main class="main-content">
 
-<!-- Employee Details Section -->
-<div class="employee-card">
-  <div class="employee-row">
-    <!-- Employee ID -->
-    <div class="employee-field">
-      <label for="employeeId">🏷️Employee ID</label>
-      <input type="text" id="employeeId" [(ngModel)]="employeeId" placeholder="Employee ID" readonly/>
+    <div class="employee-card">
+      <div class="employee-row">
+        <div class="employee-field">
+          <label for="employeeId">🏷️Employee ID</label>
+          <input type="text" id="employeeId" [(ngModel)]="employeeId" placeholder="Employee ID" readonly />
+        </div>
+
+        <div class="employee-field">
+          <label for="employeeName">👤Employee Name</label>
+          <input type="text" id="employeeName" [(ngModel)]="employeeName" placeholder="Employee Name" readonly />
+        </div>
+      </div>
     </div>
 
-    <!-- Employee Name -->
-    <div class="employee-field">
-      <label for="employeeName">👤Employee Name</label>
-      <input type="text" id="employeeName" [(ngModel)]="employeeName" placeholder="Employee Name" readonly/>
-    </div>
-  </div>
-</div>
+
+    <div class="task-form">
+      <form [formGroup]="taskForm" (ngSubmit)="saveTask()">
+
+        <div formArrayName="tasks">
+          <div *ngFor="let task of tasks.controls; let i = index" [formGroupName]="i" class="task-block">
+
+            <div class="form-row task-header" *ngIf="i === 0">
+              <div class="form-group">
+                <label>📅 Date *</label>
+                <input type="date" formControlName="date" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>📊 Project Name *</label>
+                <select formControlName="project">
+                  <option value="">- Select -</option>
+                  <option *ngFor="let project of projects" [value]="project">{{ project }}</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>👤 Team Lead Name *</label>
+                <select formControlName="teamLead">
+                  <option value="">- Select -</option>
+                  <option *ngFor="let teamLead of teamLeads" [value]="teamLead">{{ teamLead }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="arrow-container" (click)="toggleTask(i)">
+              <span class="toggle-arrow">{{ expandedTaskIndex === i ? '▼ ' : '▶ ' }}</span>
+            </div>
+
+            <div *ngIf="expandedTaskIndex === i" class="collapsible-form">
+              <div class="form-row">
+                <div class="form-group full-width">
+                  <label>📝 Tasks *</label>
+                  <textarea formControlName="taskTitle" class="tasks-box"></textarea>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group full-width">
+                  <label>📖 Description *</label>
+                  <textarea formControlName="description" class="description-box"></textarea>
+                </div>
+              </div>
+
+              <div class="form-row pr-task-inline">
+
+                <div class="form-group half-width">
+                  <label>📂 Task Reference</label>
+                  <input type="file" (change)="onFileChange($event,i)" />
+                </div>
+
+                <div class="form-group half-width">
+                  <label>🔗 PR Link</label>
+                  <input type="url" formControlName="prLink" placeholder="https://github.com/org/repo/pull/123" />
+
+                  <small *ngIf="task.get('prLink')?.value; else noPr">
+                    ✅ <a [href]="task.get('prLink')?.value" target="_blank">View PR</a>
+                  </small>
+                  <ng-template #noPr>
+                    <small>⚠️ No PR added yet</small>
+                  </ng-template>
+                </div>
+
+              </div>
 
 
-<!-- Task Form -->
-<div class="task-form">
-  <form [formGroup]="taskForm" (ngSubmit)="saveTask()">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>🚩 Status *</label>
+                  <select formControlName="status">
+                    <option value="">- Select -</option>
+                    <option value="Complete">Complete ✅</option>
+                    <option value="InComplete">Incomplete ❌</option>
+                    <option value="Partial">Partial ⏳</option>
+                  </select>
+                </div>
 
-  <div formArrayName="tasks">
-    <div *ngFor="let task of tasks.controls; let i = index" [formGroupName]="i" class="task-block">
+                <div class="form-group">
+                  <label>⏰ Hours * (HH:mm)</label>
+                  <input 
+                    type="text" 
+                    formControlName="hours" 
+                    placeholder="08:30"
+                    maxlength="5"
+                    (blur)="formatTimeOnBlur(i, 'hours')"
+                    [class.invalid-input]="task.get('hours')?.invalid && task.get('hours')?.touched"
+                  />
+                  <div *ngIf="task.get('hours')?.hasError('pattern') && task.get('hours')?.touched" style="color: red; font-size: 0.8rem; margin-top: 2px;">
+                    Format: HH:mm (24h)
+                  </div>
+                </div>
+              </div>
 
-      <!-- Always Visible: Date (only for the first task) -->
-<div class="form-row task-header" *ngIf="i === 0">
-  <div class="form-group">
-    <label>📅 Date *</label>
-    <input type="date" formControlName="date" />
-  </div>
-</div>   
-        <!-- Project Name -->
-<div class="form-row">
-  <div class="form-group">
-    <label>📊 Project Name *</label>
-    <select formControlName="project">
-      <option value="">- Select -</option>
-      <option *ngFor="let project of projects" [value]="project">{{ project }}</option>
-    </select>
-  </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>➕ Extra Hours (HH:mm)</label>
+                  <input 
+                    type="text" 
+                    formControlName="extraHours"
+                    placeholder="00:00"
+                    maxlength="5"
+                    (blur)="formatTimeOnBlur(i, 'extraHours')"
+                    [class.invalid-input]="task.get('extraHours')?.invalid && task.get('extraHours')?.touched"
+                  />
+                   <div *ngIf="task.get('extraHours')?.hasError('pattern') && task.get('extraHours')?.touched" style="color: red; font-size: 0.8rem; margin-top: 2px;">
+                    Format: HH:mm (24h)
+                  </div>
+                </div>
+              </div>
 
-
-<!-- Team Lead Name -->
-  <div class="form-group">
-    <label>👤 Team Lead Name *</label>
-    <select formControlName="teamLead">
-      <option value="">- Select -</option>
-      <option *ngFor="let teamLead of teamLeads" [value]="teamLead">{{ teamLead }}</option>
-    </select>
-  </div>
-</div>
-
-<!-- Arrow placed below project name -->
-<div class="arrow-container" (click)="toggleTask(i)">
-  <span class="toggle-arrow">{{ expandedTaskIndex === i ? '▼ ' : '▶ ' }}</span>
-</div>
-
-        <!-- Collapsible Section -->
-      <div *ngIf="expandedTaskIndex === i" class="collapsible-form">
-        <!-- Tasks -->
-        <div class="form-row">
-          <div class="form-group full-width">
-            <label>📝 Tasks *</label>
-            <textarea formControlName="taskTitle" class="tasks-box"></textarea>
+              <div class="form-row">
+                <button type="button" class="btn btn-danger" (click)="removeTask(i)" *ngIf="tasks.length > 1">
+                  ❌ Remove
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-
-        <!-- Description -->
-        <div class="form-row">
-          <div class="form-group full-width">
-            <label>📖 Description *</label>
-            <textarea formControlName="description" class="description-box"></textarea>
-          </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="addTask()">➕ Add More Task</button>
+          <button type="submit" class="btn btn-primary">💾 Save Task</button>
+          <button type="button" class="btn btn-exit" (click)="onExit()">🚪 Exit</button>
         </div>
 
-        <!-- File + PR Link in one line -->
-<div class="form-row pr-task-inline">
-  
-  <!-- File -->
-  <div class="form-group half-width">
-    <label>📂 Task Reference</label>
-    <input type="file" (change)="onFileChange($event,i)" />
-  </div>
-
-  <!-- PR Link -->
-  <div class="form-group half-width">
-    <label>🔗 PR Link</label>
-    <input 
-      type="url" 
-      formControlName="prLink" 
-      placeholder="https://github.com/org/repo/pull/123" />
-
-    <!-- Status -->
-    <small *ngIf="task.get('prLink')?.value; else noPr">
-      ✅ <a [href]="task.get('prLink')?.value" target="_blank">View PR</a>
-    </small>
-    <ng-template #noPr>
-      <small>⚠️ No PR added yet</small>
-    </ng-template>
-  </div>
-
-</div>
-
-
-        <!-- Status + Hours -->
-        <div class="form-row">
-          <div class="form-group">
-            <label>🚩 Status *</label>
-            <select formControlName="status">
-              <option value="">- Select -</option>
-              <option value="Complete">Complete ✅</option>
-              <option value="InComplete">Incomplete ❌</option>
-              <option value="Partial">Partial ⏳</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>⏰ Hours *</label>
-            <input type="time" formControlName="hours" />
-          </div>
-        </div>
-
-        <!-- Extra Hours -->
-        <div class="form-row">
-          <div class="form-group">
-            <label>➕ Extra Hours</label>
-            <input type="time" formControlName="extraHours" />
-          </div>
-        </div>
-
-        <!-- Remove Button -->
-        <div class="form-row">
-          <button type="button" class="btn btn-danger" (click)="removeTask(i)" *ngIf="tasks.length > 1">
-            ❌ Remove
-          </button>
-        </div>
-      </div> 
-    </div>   
-  </div>     
-  <!-- Actions -->
-  <div class="form-actions">
-    <button type="button" class="btn btn-secondary" (click)="addTask()">➕ Add More Task</button>
-    <button type="submit" class="btn btn-primary">💾 Save Task</button>
-    <button type="button" class="btn btn-exit" (click)="onExit()">🚪 Exit</button>
-  </div>
-
-</form>
+      </form>
     </div>
   </main>
 </div>
 
-<!-- Edit Popup Modal -->
 <div *ngIf="showEditPopup" class="edit-popup-overlay">
   <div class="edit-popup">
     <div class="popup-header">
       <h3>✏️ Edit Tasks - {{ selectedTaskForEdit?.date | date:'MMM dd, yyyy' }}</h3>
       <button class="close-btn" (click)="closeEditPopup()">×</button>
     </div>
-    
+
     <div class="popup-content">
       <div *ngFor="let task of selectedTaskForEdit?.tasks; let i = index" class="edit-task-item">
         <h4>Task {{ i + 1 }}</h4>
-        
+
         <div class="form-row">
           <div class="form-group full-width">
             <label>📝 Task Name <span class="readonly-label">(Read-only)</span></label>
-             <input type="text" 
-                   [value]="selectedTaskForEdit.tasks[i].taskName || ''"
-                   readonly 
-                   class="readonly-input" />
+            <input type="text" [value]="selectedTaskForEdit.tasks[i].taskName || ''" readonly class="readonly-input" />
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group full-width">
             <label>📖 Description</label>
-            <textarea [(ngModel)]="selectedTaskForEdit.tasks[i].description" 
-                      class="description-box"></textarea>
+            <textarea [(ngModel)]="selectedTaskForEdit.tasks[i].description" class="description-box"></textarea>
           </div>
         </div>
 
@@ -225,13 +216,35 @@
               <option value="Partial">Partial ⏳</option>
             </select>
           </div>
+
           <div class="form-group">
-            <label>⏰ Hours</label>
-            <input type="time" [(ngModel)]="selectedTaskForEdit.tasks[i].hours" />
+            <label>⏰ Hours (HH:mm)</label>
+            <input 
+              type="text" 
+              [(ngModel)]="selectedTaskForEdit.tasks[i].hours" 
+              placeholder="08:30"
+              maxlength="5"
+              pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
+              #popHours="ngModel"
+            />
+            <div *ngIf="popHours.invalid && popHours.touched" style="color: red; font-size: 0.8rem;">
+               Invalid 24h format
+            </div>
           </div>
+
           <div class="form-group">
-            <label>➕ Extra Hours</label>
-            <input type="time" [(ngModel)]="selectedTaskForEdit.tasks[i].extraHours" />
+            <label>➕ Extra Hours (HH:mm)</label>
+            <input 
+              type="text" 
+              [(ngModel)]="selectedTaskForEdit.tasks[i].extraHours"
+              placeholder="00:00"
+              maxlength="5"
+              pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
+              #popExtra="ngModel"
+            />
+             <div *ngIf="popExtra.invalid && popExtra.touched" style="color: red; font-size: 0.8rem;">
+               Invalid 24h format
+            </div>
           </div>
         </div>
 
@@ -254,7 +267,6 @@
   </div>
 </div>
 
-<!-- 🔹 Custom Alert Modal -->
 <div *ngIf="showAlert" class="custom-alert-overlay">
   <div class="custom-alert-box">
     <p>{{ alertMessage }}</p>
@@ -262,7 +274,6 @@
   </div>
 </div>
 
-<!-- 🔹 Custom Confirm Modal -->
 <div *ngIf="showConfirm" class="custom-alert-overlay">
   <div class="custom-alert-box">
     <p>{{ confirmMessage }}</p>
@@ -272,10 +283,3 @@
     </div>
   </div>
 </div>
-
-
-
-
-
-
-
