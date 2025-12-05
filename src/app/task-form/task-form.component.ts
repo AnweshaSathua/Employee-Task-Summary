@@ -121,8 +121,8 @@ export class TaskFormComponent implements OnInit {
       reference: [''],
       prLink: [''],
       status: ['', Validators.required],
-      hours: ['', [Validators.required, Validators.pattern(timePattern)]],
-      extraHours: ['', [Validators.pattern(timePattern)]],
+      hours: ['', Validators.required],
+      extraHours: [''],
       file: [null]
     });
   }
@@ -168,22 +168,6 @@ export class TaskFormComponent implements OnInit {
           console.error('Error fetching employee details:', err);
         }
       });
-  }
-formatTimeOnBlur(index: number, controlName: string): void {
-    const control = this.tasks.at(index).get(controlName);
-    if (control && control.value) {
-      let val = control.value.trim();
-      if (/^\d{1}:\d{2}$/.test(val)) {
-        val = '0' + val;
-        control.setValue(val);
-      }else if (/^\d{1,2}$/.test(val)) {
-          const num = parseInt(val, 10);
-          if (num >= 0 && num <= 23) {
-               val = num.toString().padStart(2, '0') + ':00';
-               control.setValue(val);
-          }
-      }
-    }
   }
   
 
@@ -440,6 +424,7 @@ private refreshUnratedTasks(): void {
     this.confirmCallback = null;
   }
 }
+
 
 
 
