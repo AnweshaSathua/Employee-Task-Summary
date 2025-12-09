@@ -229,7 +229,8 @@ export class TaskFormComponent implements OnInit {
     return Object.keys(this.currentMonthTasks).length > 0;
   }
 
-  onDateClick(dateKey: string): void {
+  onDateClick(dateKey: string, event: Event): void {
+    event.stopPropagation();
     this.selectedTaskForEdit = {
       date: dateKey,
       tasks: [...this.currentMonthTasks[dateKey]] 
@@ -434,4 +435,5 @@ export class TaskFormComponent implements OnInit {
     this.confirmCallback = null;
   }
 }
+
 
