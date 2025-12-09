@@ -15,7 +15,7 @@
     <div class="sidebar-content">
       <div *ngFor="let dateKey of getSortedDates(); let i = index" 
            class="date-item" 
-           (click)="onDateClick(dateKey, $event)"
+           (click)="onDateClick(dateKey)"
            [class.active]="selectedTaskForEdit?.date === dateKey">
         <div class="date-header">
           <span class="date">{{ formatDate(dateKey) }}</span>
@@ -162,7 +162,7 @@
         <div class="form-actions">
           <!-- <button type="button" class="btn btn-secondary" (click)="addTask()">➕ Add More Task</button> -->
           <button type="submit" class="btn btn-primary">💾 Save Task</button>
-          <button type="button" class="btn btn-exit" (click)="onExit($event)">🚪 Exit</button>
+          <button type="button" class="btn btn-exit" (click)="onExit()">🚪 Exit</button>
         </div>
 
       </form>
@@ -250,7 +250,5 @@
     </div>
   </div>
 </div>
-
-
 
 
