@@ -15,7 +15,7 @@
     <div class="sidebar-content">
       <div *ngFor="let dateKey of getSortedDates(); let i = index" 
            class="date-item" 
-           (click)="onDateClick(dateKey)"
+           (click)="onDateClick(dateKey, $event)"
            [class.active]="selectedTaskForEdit?.date === dateKey">
         <div class="date-header">
           <span class="date">{{ formatDate(dateKey) }}</span>
@@ -250,5 +250,6 @@
     </div>
   </div>
 </div>
+
 
 
