@@ -399,7 +399,12 @@ export class TaskFormComponent implements OnInit {
     });
   }
 
-  onExit(): void {
+  onExit(event?: Event): void {
+    const target = event?.target as HTMLElement;
+  if (target && (target.closest('.task-sidebar') || target.closest('.date-item'))) {
+    console.warn('🛑 Blocked accidental exit trigger from Sidebar click');
+    return;
+  }
     this.showCustomConfirm('Are you sure you want to exit?', () => {
       if (this.isBrowser) {
         localStorage.clear();
@@ -435,5 +440,6 @@ export class TaskFormComponent implements OnInit {
     this.confirmCallback = null;
   }
 }
+
 
 
