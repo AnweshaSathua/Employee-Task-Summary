@@ -229,8 +229,7 @@ export class TaskFormComponent implements OnInit {
     return Object.keys(this.currentMonthTasks).length > 0;
   }
 
-  onDateClick(dateKey: string, event: Event): void {
-    event.stopPropagation();
+  onDateClick(dateKey: string): void {
     this.selectedTaskForEdit = {
       date: dateKey,
       tasks: [...this.currentMonthTasks[dateKey]] 
@@ -399,12 +398,7 @@ export class TaskFormComponent implements OnInit {
     });
   }
 
-  onExit(event?: Event): void {
-    const target = event?.target as HTMLElement;
-  if (target && (target.closest('.task-sidebar') || target.closest('.date-item'))) {
-    console.warn('🛑 Blocked accidental exit trigger from Sidebar click');
-    return;
-  }
+  onExit(): void {
     this.showCustomConfirm('Are you sure you want to exit?', () => {
       if (this.isBrowser) {
         localStorage.clear();
@@ -440,6 +434,4 @@ export class TaskFormComponent implements OnInit {
     this.confirmCallback = null;
   }
 }
-
-
 
